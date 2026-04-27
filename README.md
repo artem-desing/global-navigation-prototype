@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Global Navigation Prototype
 
-## Getting Started
+Internal Wallarm prototype for exploring an updated global navigation model. Built as a clickable Next.js app so design, PM, and teammates can run it locally and propose alternatives via PR.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router) + Turbopack
+- React 19, TypeScript
+- Tailwind CSS v4
+- `@wallarm-org/design-system` (WADS)
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | What it does |
+|---|---|
+| `pnpm dev` | Start the dev server |
+| `pnpm build` | Production build |
+| `pnpm start` | Run the production build |
+| `pnpm lint` | ESLint check |
 
-## Learn More
+## How to contribute
 
-To learn more about Next.js, take a look at the following resources:
+The prototype is a discussion artifact. To propose a navigation variation:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Branch off `main`
+2. Edit the nav components / mock data to represent your model
+3. Open a merge request — the PR is the proposal
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Keep proposals focused: one navigation idea per branch.
 
-## Deploy on Vercel
+## Project memory
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Charter, brief, decisions, IA audit live in the `head-of-design` workspace at `cross-team-projects/global-navigation-prototype/`.
