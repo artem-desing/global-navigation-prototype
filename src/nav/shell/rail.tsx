@@ -2,15 +2,22 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Home as HomeIcon } from '@wallarm-org/design-system/icons';
 import { Text } from '@wallarm-org/design-system/Text';
 import { getProductManifests, getPlatformUtilityManifests } from '@/nav/manifest/registry';
 import { resolveIcon } from '@/nav/manifest/icons';
 import type { ProductManifest, PlatformUtilityManifest } from '@/nav/manifest/types';
-import { HoverPreview } from './hover-preview';
 
-const HOVER_HIDE_DELAY_MS = 150;
+// Collapsed: just enough to center a 24px icon with 8+8 of stack/item padding.
+// Expanded: roomy enough to render the longest product label.
+export const RAIL_COLLAPSED_WIDTH_PX = 56;
+export const RAIL_EXPANDED_WIDTH_PX = 240;
+const STACK_PAD_X_PX = 8;
+const ITEM_PAD_X_PX = 8;
+const ICON_BOX_PX = 24;
+const ITEM_HEIGHT_PX = 40;
+const ITEM_GAP_PX = 4;
 
 export function Rail() {
   const pathname = usePathname();
@@ -18,105 +25,94 @@ export function Rail() {
   const utilities = getPlatformUtilityManifests();
   const activeId = pathname === '/' ? 'home' : pathname.split('/')[1];
 
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const showPreview = (id: string) => {
-    if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = null;
-    }
-    setHoveredId(id);
-  };
-
-  const scheduleHide = () => {
-    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-    hideTimerRef.current = setTimeout(() => {
-      setHoveredId(null);
-      hideTimerRef.current = null;
-    }, HOVER_HIDE_DELAY_MS);
-  };
-
-  const cancelHide = () => {
-    if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = null;
-    }
-  };
+  const [expanded, setExpanded] = useState(false);
 
   return (
-    <>
+    <div
+      className="relative shrink-0"
+      style={{ width: `${RAIL_COLLAPSED_WIDTH_PX}px` }}
+    >
       <nav
         aria-label="Global root navigation"
-        className="flex w-80 shrink-0 flex-col justify-between border-r py-12"
+        onMouseEnter={() => setExpanded(true)}
+        onMouseLeave={() => setExpanded(false)}
+        className="absolute inset-y-0 left-0 z-20 flex flex-col justify-between overflow-hidden"
         style={{
+          width: `${expanded ? RAIL_EXPANDED_WIDTH_PX : RAIL_COLLAPSED_WIDTH_PX}px`,
+          paddingTop: '8px',
+          paddingBottom: '8px',
+          transition: 'width 150ms ease-out, box-shadow 150ms ease-out',
           backgroundColor: 'var(--color-bg-surface-1)',
-          borderColor: 'var(--color-border-primary-light)',
+          borderRight: '1px solid var(--color-border-primary-light)',
+          boxShadow: expanded ? '4px 0 12px rgba(0,0,0,0.08)' : 'none',
         }}
       >
-        <div className="flex flex-col items-stretch gap-4 px-8" data-stack="products">
+        <div
+          data-stack="products"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: `${ITEM_GAP_PX}px`,
+            paddingLeft: `${STACK_PAD_X_PX}px`,
+            paddingRight: `${STACK_PAD_X_PX}px`,
+          }}
+        >
           <RailItem
             href="/"
             label="Home"
-            shortLabel="Home"
             IconComponent={HomeIcon}
             active={activeId === 'home'}
+            expanded={expanded}
           />
           {products.map((p) => (
             <ProductRailItem
               key={p.id}
               product={p}
               active={activeId === p.id}
-              onHoverEnter={() => showPreview(p.id)}
-              onHoverLeave={scheduleHide}
+              expanded={expanded}
             />
           ))}
         </div>
 
-        <div className="flex flex-col items-stretch gap-4 px-8" data-stack="platform-utilities">
+        <div
+          data-stack="platform-utilities"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: `${ITEM_GAP_PX}px`,
+            paddingLeft: `${STACK_PAD_X_PX}px`,
+            paddingRight: `${STACK_PAD_X_PX}px`,
+          }}
+        >
           {utilities.map((u) => (
             <PlatformUtilityRailItem
               key={u.id}
               utility={u}
               active={activeId === u.id}
-              onHoverEnter={() => {
-                if (!u.externalUrl) showPreview(u.id);
-              }}
-              onHoverLeave={scheduleHide}
+              expanded={expanded}
             />
           ))}
         </div>
       </nav>
-
-      {hoveredId ? (
-        <HoverPreview
-          productId={hoveredId}
-          onMouseEnter={cancelHide}
-          onMouseLeave={scheduleHide}
-        />
-      ) : null}
-    </>
+    </div>
   );
 }
 
 interface ProductRailItemProps {
   product: ProductManifest;
   active: boolean;
-  onHoverEnter: () => void;
-  onHoverLeave: () => void;
+  expanded: boolean;
 }
 
-function ProductRailItem({ product, active, onHoverEnter, onHoverLeave }: ProductRailItemProps) {
+function ProductRailItem({ product, active, expanded }: ProductRailItemProps) {
   const IconComponent = resolveIcon(product.icon);
   return (
     <RailItem
       href={`/${product.id}/${product.defaultLandingId}`}
       label={product.label}
-      shortLabel={product.shortLabel ?? product.label}
       IconComponent={IconComponent}
       active={active}
-      onMouseEnter={onHoverEnter}
-      onMouseLeave={onHoverLeave}
+      expanded={expanded}
     />
   );
 }
@@ -124,24 +120,18 @@ function ProductRailItem({ product, active, onHoverEnter, onHoverLeave }: Produc
 interface PlatformUtilityRailItemProps {
   utility: PlatformUtilityManifest;
   active: boolean;
-  onHoverEnter: () => void;
-  onHoverLeave: () => void;
+  expanded: boolean;
 }
 
-function PlatformUtilityRailItem({
-  utility,
-  active,
-  onHoverEnter,
-  onHoverLeave,
-}: PlatformUtilityRailItemProps) {
+function PlatformUtilityRailItem({ utility, active, expanded }: PlatformUtilityRailItemProps) {
   const IconComponent = resolveIcon(utility.icon);
   if (utility.externalUrl) {
     return (
       <ExternalRailItem
         href={utility.externalUrl}
         label={utility.label}
-        shortLabel={utility.shortLabel ?? utility.label}
         IconComponent={IconComponent}
+        expanded={expanded}
       />
     );
   }
@@ -149,11 +139,9 @@ function PlatformUtilityRailItem({
     <RailItem
       href={`/${utility.id}/${utility.defaultLandingId}`}
       label={utility.label}
-      shortLabel={utility.shortLabel ?? utility.label}
       IconComponent={IconComponent}
       active={active}
-      onMouseEnter={onHoverEnter}
-      onMouseLeave={onHoverLeave}
+      expanded={expanded}
     />
   );
 }
@@ -161,39 +149,59 @@ function PlatformUtilityRailItem({
 interface RailItemProps {
   href: string;
   label: string;
-  shortLabel: string;
   IconComponent?: React.ComponentType<{ size?: 'sm' | 'md'; 'aria-hidden'?: boolean }>;
   active: boolean;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
+  expanded: boolean;
 }
 
-function RailItem({
-  href,
-  label,
-  shortLabel,
-  IconComponent,
-  active,
-  onMouseEnter,
-  onMouseLeave,
-}: RailItemProps) {
+const itemBaseStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  height: `${ITEM_HEIGHT_PX}px`,
+  paddingLeft: `${ITEM_PAD_X_PX}px`,
+  paddingRight: `${ITEM_PAD_X_PX}px`,
+  gap: '8px',
+  borderRadius: '6px',
+  whiteSpace: 'nowrap',
+  transition: 'background-color 150ms ease-out, color 150ms ease-out',
+};
+
+const iconBoxStyle: React.CSSProperties = {
+  display: 'flex',
+  width: `${ICON_BOX_PX}px`,
+  height: `${ICON_BOX_PX}px`,
+  flexShrink: 0,
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
+const labelStyle = (expanded: boolean): React.CSSProperties => ({
+  opacity: expanded ? 1 : 0,
+  transition: 'opacity 120ms ease-out',
+  pointerEvents: expanded ? 'auto' : 'none',
+});
+
+function RailItem({ href, label, IconComponent, active, expanded }: RailItemProps) {
   return (
     <Link
       href={href}
       aria-label={label}
+      title={expanded ? undefined : label}
       aria-current={active ? 'page' : undefined}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      className="flex flex-col items-center justify-center gap-4 rounded-md px-4 py-8 transition-colors"
       style={{
+        ...itemBaseStyle,
         backgroundColor: active ? 'var(--color-bg-primary)' : 'transparent',
         color: active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
       }}
     >
-      {IconComponent ? <IconComponent size="md" aria-hidden /> : null}
-      <Text size="xs" color="inherit">
-        {shortLabel}
-      </Text>
+      <span style={iconBoxStyle}>
+        {IconComponent ? <IconComponent size="md" aria-hidden /> : null}
+      </span>
+      <span style={labelStyle(expanded)} aria-hidden={!expanded}>
+        <Text size="sm" color="inherit">
+          {label}
+        </Text>
+      </span>
     </Link>
   );
 }
@@ -201,27 +209,32 @@ function RailItem({
 interface ExternalRailItemProps {
   href: string;
   label: string;
-  shortLabel: string;
   IconComponent?: React.ComponentType<{ size?: 'sm' | 'md'; 'aria-hidden'?: boolean }>;
+  expanded: boolean;
 }
 
-function ExternalRailItem({ href, label, shortLabel, IconComponent }: ExternalRailItemProps) {
+function ExternalRailItem({ href, label, IconComponent, expanded }: ExternalRailItemProps) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`${label} (opens in new tab)`}
-      className="flex flex-col items-center justify-center gap-4 rounded-md px-4 py-8 transition-colors"
+      title={expanded ? undefined : label}
       style={{
+        ...itemBaseStyle,
         backgroundColor: 'transparent',
         color: 'var(--color-text-secondary)',
       }}
     >
-      {IconComponent ? <IconComponent size="md" aria-hidden /> : null}
-      <Text size="xs" color="inherit">
-        {shortLabel}
-      </Text>
+      <span style={iconBoxStyle}>
+        {IconComponent ? <IconComponent size="md" aria-hidden /> : null}
+      </span>
+      <span style={labelStyle(expanded)} aria-hidden={!expanded}>
+        <Text size="sm" color="inherit">
+          {label}
+        </Text>
+      </span>
     </a>
   );
 }
