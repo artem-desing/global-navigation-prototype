@@ -41,3 +41,13 @@
 **Alternatives considered:** `wallarm-nav-redesign`, `platform-shell-prototype` — rejected as either too vague or too close to MFE shell terminology.
 
 **Owner:** Artem
+
+## 2026-04-27 — Starting nav direction from Platform-jam: top-bar product switcher + per-product sidebar
+
+**Decision:** v0 prototype starts from a two-tier model — a top-bar product switcher above a per-product sidebar — based on the direction in the Figma `Platform-jam` board and design canvas.
+
+**Context:** The jam already explored alternatives (left rail of products, top tabs) against references from Vercel, GCP, Sentry, GitLab, PostHog, Databricks, etc. and converged on top-bar switcher + product sidebar. Settings sits as a cross-cutting cluster above product scope, not inside the sidebar. Sidebar interaction model: expand/collapse with cmd+B, hover-to-peek, hover+pin (Sentry-style). Global cmd+K search across products plus scoped resource search inside a product.
+
+**Not locked:** This is the *starting* model for v0 to make flows testable, not a final pick. Alternative arrangements still welcome via PR — that's the whole point of the prototype.
+
+**Owner:** Artem
