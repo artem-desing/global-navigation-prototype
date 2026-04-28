@@ -11,6 +11,7 @@ Team-facing context for the global navigation prototype. Read in this order:
 | [open-items.md](open-items.md) | Live list of open design questions and blockers | When picking what to work on next |
 | [glossary.md](glossary.md) | Working vocabulary — Product, Feature, Scope, etc. | When writing about the model; before naming anything new |
 | [references.md](references.md) | Field research on 14 reference platforms (Cloudflare, Intercom, GCP, Vercel, Kong, Neon, Supabase, Postman, Zapier, Databricks, Amplitude, Sentry, PostHog, GitLab) + LEGO-bricks synthesis | Before proposing chrome / picker / palette behavior; for vendor evidence behind glossary terms |
+| [product-features.md](product-features.md) | Per-Product Feature inventory (Edge, AI Hypervisor, Infra Discovery, Testing) — names captured verbatim from FigJam / screenshots / design files | Before naming anything in a prototype that touches a specific Product's sidebar |
 
 ## How these docs evolve
 
@@ -21,6 +22,7 @@ Team-facing context for the global navigation prototype. Read in this order:
 - **open-items.md** — live. Move items to `decisions.md` when resolved, or to MR/issue when actionable
 - **glossary.md** — live. Promote draft terms to **agreed** as the team locks them in; add new terms whenever a structural concept needs a name
 - **references.md** — append-only per research wave. Re-run when the FigJam evolves significantly or when a referenced vendor ships a major nav redesign
+- **product-features.md** — live. Add a new section per Product as Feature lists become known; mark each entry **Confirmed**, **Speculation**, or **TBD** with a source citation
 
 ## Where the design lead's workspace lives
 
