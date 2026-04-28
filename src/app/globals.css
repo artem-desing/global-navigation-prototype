@@ -5,3 +5,20 @@
 @import "tw-animate-css";
 
 @source "../../node_modules/@wallarm-org/design-system/dist";
+
+/* Default focus-visible ring for interactive shell elements. WADS exposes
+   --color-focus-brand for this; without an opinionated default, browsers fall
+   back to thin platform-default outlines that look out of place against the
+   rest of the chrome. */
+@layer utilities {
+  nav a:focus-visible,
+  nav button:focus-visible,
+  aside a:focus-visible,
+  aside button:focus-visible,
+  [data-stack] a:focus-visible,
+  [data-stack] button:focus-visible {
+    outline: 2px solid var(--color-focus-brand);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
