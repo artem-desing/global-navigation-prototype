@@ -44,7 +44,7 @@ export function Rail() {
           transition: 'width 150ms ease-out, box-shadow 150ms ease-out',
           backgroundColor: 'var(--color-bg-surface-1)',
           borderRight: '1px solid var(--color-border-primary-light)',
-          boxShadow: expanded ? '4px 0 12px rgba(0,0,0,0.08)' : 'none',
+          boxShadow: expanded ? '4px 0 12px rgba(0,0,0,0.06)' : 'none',
         }}
       >
         <div

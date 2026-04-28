@@ -11,6 +11,7 @@ import { RoutesPicker } from '@/nav/shell/scope-pickers/routes';
 import { PoliciesPicker } from '@/nav/shell/scope-pickers/policies';
 import { HeatmapPage } from '@/nav/shell/feature-pages/heatmap';
 import { LockedWarning } from '@/nav/shell/feature-pages/locked-warning';
+import { DataPlaneFrame } from '@/nav/shell/feature-pages/data-plane-frame';
 
 export function CatchAllClient() {
   const pathname = usePathname();
@@ -33,19 +34,48 @@ export function CatchAllClient() {
   if (page.kind === 'redirect') return null;
 
   if (page.kind === 'scope-picker') {
-    return (
+    const segments = pathname.split('/').filter(Boolean);
+    const picker = (
       <ScopePickerDispatch
         scopeRequirement={page.scopeRequirement}
         basePath={page.basePath}
         pathname={pathname}
       />
     );
+    // Wrap data-plane-scoped scope-pickers (e.g. /edge/data-planes/<id>/services)
+    // with the data-plane segmented-tab frame so the tabs stay visible.
+    if (
+      segments[0] === 'edge' &&
+      segments[1] === 'data-planes' &&
+      segments[2] &&
+      segments[3]
+    ) {
+      return (
+        <DataPlaneFrame dataPlaneId={segments[2]} activeFeatureId={segments[3]}>
+          {picker}
+        </DataPlaneFrame>
+      );
+    }
+    return picker;
   }
 
   if (page.kind === 'feature') {
-    const productOrUtility = pathname.split('/').filter(Boolean)[0];
+    const segments = pathname.split('/').filter(Boolean);
+    const productOrUtility = segments[0];
     if (productOrUtility === 'ai-hypervisor' && page.feature.id === 'heatmap') {
       return <HeatmapPage />;
+    }
+    if (
+      productOrUtility === 'edge' &&
+      segments[1] === 'data-planes' &&
+      segments[2]
+    ) {
+      return (
+        <DataPlaneFrame
+          dataPlaneId={segments[2]}
+          activeFeatureId={page.feature.id}
+        />
+      );
     }
     return (
       <PlaceholderPage

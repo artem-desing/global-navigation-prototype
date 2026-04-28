@@ -6,6 +6,41 @@
 
 @source "../../node_modules/@wallarm-org/design-system/dist";
 
+/* Light palette overrides matching the Wallarm AI OS reference.
+   Near-white surfaces, hairline gray borders, near-black text.
+   Wallarm's orange brand tokens are left untouched. */
+:root {
+  color-scheme: light;
+
+  /* Surfaces — page bg pure white, sidebar a touch off-white, cards white. */
+  --color-bg-page-bg: #ffffff;
+  --color-bg-surface-1: #fafafa;
+  --color-bg-surface-2: #ffffff;
+  --color-bg-surface-3: #f7f7f7;
+  --color-bg-surface-4: #f1f1f1;
+  --color-bg-surface-5: #ededed;
+
+  /* Primary neutral fills (active item pill, chips). */
+  --color-bg-primary: #f1f1f1;
+  --color-bg-light-primary: #f7f7f7;
+  --color-bg-strong-primary: #e5e5e5;
+
+  /* Text on light surfaces. */
+  --color-text-primary: #1f1f1f;
+  --color-text-primary-fixed: #1f1f1f;
+  --color-text-secondary: #6b6b6b;
+  --color-text-tertiary: #a3a3a3;
+  --color-text-hint: #a3a3a3;
+
+  /* Borders — very subtle hairline. */
+  --color-border-primary: #ececec;
+  --color-border-primary-light: #f1f1f1;
+  --color-border-strong-primary: #d4d4d4;
+
+  /* Disabled on light. */
+  --color-text-disable-primary: rgba(31, 31, 31, 0.35);
+}
+
 /* Default focus-visible ring for interactive shell elements. WADS exposes
    --color-focus-brand for this; without an opinionated default, browsers fall
    back to thin platform-default outlines that look out of place against the
