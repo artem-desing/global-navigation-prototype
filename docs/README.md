@@ -9,7 +9,7 @@ Team-facing context for the global navigation prototype. Read in this order:
 | [current-ia.md](current-ia.md) | Baseline audit of today's Wallarm Console navigation | Before proposing a model — this is what we're redesigning *from* |
 | [decisions.md](decisions.md) | Append-only decisions log | When a decision is made; consult before re-litigating |
 | [open-items.md](open-items.md) | Live list of open design questions and blockers | When picking what to work on next |
-| [glossary.md](glossary.md) | Working vocabulary — Service, Tool, Scope, etc. | When writing about the model; before naming anything new |
+| [glossary.md](glossary.md) | Working vocabulary — Product, Feature, Scope, etc. | When writing about the model; before naming anything new |
 | [references.md](references.md) | Field research on 14 reference platforms (Cloudflare, Intercom, GCP, Vercel, Kong, Neon, Supabase, Postman, Zapier, Databricks, Amplitude, Sentry, PostHog, GitLab) + LEGO-bricks synthesis | Before proposing chrome / picker / palette behavior; for vendor evidence behind glossary terms |
 
 ## How these docs evolve

@@ -1,10 +1,10 @@
 # Global Navigation Prototype — Reference research
 
-Field research on 14 reference platforms, conducted 2026-04-28. The goal isn't a beauty contest — it's to surface the **LEGO bricks** (recurring nav primitives) we can compose into a Wallarm shell that's agnostic about depth, breadth, and which Services are installed.
+Field research on 14 reference platforms, conducted 2026-04-28. The goal isn't a beauty contest — it's to surface the **LEGO bricks** (recurring nav primitives) we can compose into a Wallarm shell that's agnostic about depth, breadth, and which Products are installed.
 
 Sources: each vendor section ends with primary links. All research is from public materials (docs portals, changelogs, design-system docs, blog posts, public GitHub). Where a detail couldn't be verified publicly it's marked **(unverified)**.
 
-Read this doc with [glossary.md](glossary.md) open — terms in **bold** like **Service**, **Tool**, **Scope** are defined there.
+Read this doc with [glossary.md](glossary.md) open — terms in **bold** like **Product**, **Feature**, **Scope** are defined there.
 
 ---
 
@@ -30,14 +30,14 @@ Read this doc with [glossary.md](glossary.md) open — terms in **bold** like **
 
 URL is `dash.cloudflare.com/{accountId}/{zoneName}/...` — every layer has a deterministic position. Account picker at the top of the sidebar; Zone picker as a search dropdown on the account home plus a forward-arrow control at the top of the zone view.
 
-**Settings is distributed, not centralized.** The Zero Trust refresh moved Settings *"closer to the tools and resources they impact"* — Settings is no longer a global leaf, it's split across the Tools that need it.
+**Settings is distributed, not centralized.** The Zero Trust refresh moved Settings *"closer to the tools and resources they impact"* — Settings is no longer a global leaf, it's split across the Features that need it.
 
 **Search-as-IA-aliasing.** Quick Search (⌘K) indexes both current and previous names — they use search as a migration shim when reorganizing the tree. Results bucket into "Account-Wide Products" and "Website-Only Products" — exactly the static-vs-scoped split Artem flagged. Search returns sidebar destinations only, not entities (yet).
 
 **What to borrow:**
-- URL-encoded Service / Scope / Tool triple — the shell renders nav from URL state, not from in-memory store. Plug-ins register routes against named scope levels.
+- URL-encoded Product / Scope / Feature triple — the shell renders nav from URL state, not from in-memory store. Plug-ins register routes against named scope levels.
 - Distributed Settings: settings live next to the thing they configure, not in a central tray.
-- ⌘K Quick Search with bucketed results (platform-wide vs current-Service) is the scaling lever as Services grow.
+- ⌘K Quick Search with bucketed results (platform-wide vs current-Product) is the scaling lever as Products grow.
 
 **Sources:** [Redesigning Cloudflare](https://blog.cloudflare.com/redesigning-cloudflare/), [Quick Search](https://blog.cloudflare.com/quick-search-beta/), [New Zero Trust nav](https://blog.cloudflare.com/zero-trust-navigation/), [Accounts/zones/profiles](https://developers.cloudflare.com/fundamentals/concepts/accounts-and-zones/).
 
@@ -51,7 +51,7 @@ URL is `dash.cloudflare.com/{accountId}/{zoneName}/...` — every layer has a de
 
 **Customizable level 2, fixed level 1.** Top-level products are curated and stable; users get flexibility at level 2 via pin/unpin and custom folders, all managed via "Manage > Edit sidebar" at the bottom of the sidebar.
 
-**Depth is pushed into the canvas, not the chrome.** Fin (their AI agent) goes Train → Test → Deploy → Analyze, with each splitting into 4-6 sub-areas — but all of that lives as in-page tabs and detail panes inside the destination, not as deeper sidebar levels. The chrome stays at two levels regardless of how deep a Tool actually goes.
+**Depth is pushed into the canvas, not the chrome.** Fin (their AI agent) goes Train → Test → Deploy → Analyze, with each splitting into 4-6 sub-areas — but all of that lives as in-page tabs and detail panes inside the destination, not as deeper sidebar levels. The chrome stays at two levels regardless of how deep a Feature actually goes.
 
 **Demote rare scopes, promote frequent ones.** Workspace switching (multi-tenant) is buried under Settings. Team / view scoping inside Inbox is elevated into the secondary sidebar. The lesson: scope-swap UI weight should match scope-swap frequency.
 
@@ -81,7 +81,7 @@ URL is `dash.cloudflare.com/{accountId}/{zoneName}/...` — every layer has a de
 **Where "UX-heavy" comes from (honest):** hamburger is a click away (not docked); pinned-product ~10 limit; large org-tree project picker is slow; region fragmentation across pages; breadcrumb omits the project (screenshots are scope-ambiguous).
 
 **What to borrow:**
-- Catalog-vs-working-sidebar split: an "All Services" catalog page lets you ship 8+ Services without bloating the working sidebar; pinning hands curation to the user.
+- Catalog-vs-working-sidebar split: an "All Products" catalog page lets you ship 8+ Products without bloating the working sidebar; pinning hands curation to the user.
 - Plug-in manifests slot into pre-defined categories — GCP's ~8 categories absorb 100+ products. Define our category set early.
 - Make scope-rebind boundaries visible — show what survives a scope change and what resets.
 
@@ -93,7 +93,7 @@ URL is `dash.cloudflare.com/{accountId}/{zoneName}/...` — every layer has a de
 
 **Shell anatomy.** Feb 2026 redesign replaced horizontal tabs with a resizable, collapsible left sidebar. Top bar carries scope switchers + universal search + account.
 
-**Scope changes preserve the current page slot.** From Project A's Logs, picking Project B lands on Project B's Logs — not project overview. Same nav slot, different target. This is the key pattern for cross-Service teleport.
+**Scope changes preserve the current page slot.** From Project A's Logs, picking Project B lands on Project B's Logs — not project overview. Same nav slot, different target. This is the key pattern for cross-Product teleport.
 
 **No breadcrumbs — picker IS the breadcrumb.** Team picker + project picker in the top bar are always present; "going up" means clicking the picker. Right-side detail panels dismiss back to the list with filters intact ("previous stage without losing context"). URL is the formal up-button.
 
@@ -104,15 +104,15 @@ URL is `dash.cloudflare.com/{accountId}/{zoneName}/...` — every layer has a de
 - Level 4 (a row in Logs): right-side detail panel
 - Level 5 (Observability route → function): filter & zoom in place, not navigation
 
-**Honest assessment:** Vercel's no-breadcrumb pattern works because they top out around level 4. **For our 5+ level path (`Routes → Route ID → flow → policies → policy-id`) it doesn't survive** — picker + back button can't represent it. Either we add a Service-scoped context strip (matches Artem's "breadcrumbs scoped on product level") or we enforce levels ≥4 must be panels / inner tabs / filter-zoom.
+**Honest assessment:** Vercel's no-breadcrumb pattern works because they top out around level 4. **For our 5+ level path (`Routes → Route ID → flow → policies → policy-id`) it doesn't survive** — picker + back button can't represent it. Either we add a Product-scoped context strip (matches Artem's "breadcrumbs scoped on product level") or we enforce levels ≥4 must be panels / inner tabs / filter-zoom.
 
-**Marketplace integrations install as native sidebar items** — third-party products *become* native after install. No visual difference between native and integration once installed. Worth deciding for Wallarm whether plug-in Services should look identical to platform Services or be marked.
+**Marketplace integrations install as native sidebar items** — third-party products *become* native after install. No visual difference between native and integration once installed. Worth deciding for Wallarm whether plug-in Products should look identical to platform Products or be marked.
 
 **Universal Search + ⌘K Command Menu** — two surfaces, overlapping, AI Navigation Assistant interprets queries like "show errors in last hour" and applies filters.
 
 **What to borrow:**
-- "Same slot, different target" rule for cross-Service teleport.
-- Marketplace-style plug-in registration where third-party Services become first-class.
+- "Same slot, different target" rule for cross-Product teleport.
+- Marketplace-style plug-in registration where third-party Products become first-class.
 - For deep paths, Vercel's pattern works only if we adopt their full toolkit: panels for level 4, filter-zoom for level 5. We can't borrow the no-breadcrumb piece in isolation.
 
 **Sources:** [New dashboard redesign](https://vercel.com/changelog/dashboard-navigation-redesign-rollout), [The New Side of Vercel](https://vercel.com/try/new-dashboard), [Improved cross-team experience](https://vercel.com/changelog/improved-experience-for-moving-between-your-teams-and-projects), [Universal search](https://vercel.com/changelog/dashboard-universal-search), [Vercel Integrations](https://vercel.com/docs/integrations).
@@ -140,7 +140,7 @@ This is the **closest analog to our `dataplane-id` pattern**: the frequent, cont
 
 **What to borrow:**
 - **Scope frequency dictates chrome placement.** Reserve top-bar / corner for rare switches. The `dataplane-id` picker is frequent and contextual — enter via drilling, not via a global dropdown.
-- **Replace, don't nest.** When a Tool shapeshifts on Scope selection, replace the sidebar contents wholesale. Nested rails / two-column nav don't appear at Kong.
+- **Replace, don't nest.** When a Feature shapeshifts on Scope selection, replace the sidebar contents wholesale. Nested rails / two-column nav don't appear at Kong.
 - **Breadcrumb segment as scope-swap surface** (clickable CP name returns to CP picker).
 - **⌘K with structured query syntax is non-optional** at our depth/breadth. Plan it in v1.
 
@@ -150,7 +150,7 @@ This is the **closest analog to our `dataplane-id` pattern**: the frequent, cont
 
 ### Neon — Artem favorite
 
-**The closest analog to our Service/Scope/sub-Scope cascade structurally** (org → project → branch ≈ Service → Scope → sub-Scope).
+**The closest analog to our Product/Scope/sub-Scope cascade structurally** (org → project → branch ≈ Product → Scope → sub-Scope).
 
 **Shell anatomy.** Left sidebar + top bar. ~6-8 top-level items at the project level (SQL Editor, Tables, Branches, Monitoring, Auth, Integrations, Settings). Neon keeps it small.
 
@@ -158,17 +158,17 @@ This is the **closest analog to our `dataplane-id` pattern**: the frequent, cont
 
 **Resists sidebar inflation.** Auth, RAG/AI, Compute all arrived without adding sidebar pillars. Auth is a sidebar entry that opens into its own sub-sections; RAG isn't a sidebar destination at all — it's surfaced inline (AI hints in SQL Editor failures). New capabilities embed where the work happens.
 
-**"Dynamic sidebar" = stable structure, dynamic binding.** When you switch branches, the sidebar items don't change — Tables, SQL Editor, Monitoring stay put — but each *binds to the new branch*. SQL Editor opens against the new branch+database, Tables shows the new branch's tables. This is what Artem called "dynamic sidebar" — it's actually structural stability with target rebinding, which scales far better than a structurally morphing tree (registered Tools don't disappear during scope changes).
+**"Dynamic sidebar" = stable structure, dynamic binding.** When you switch branches, the sidebar items don't change — Tables, SQL Editor, Monitoring stay put — but each *binds to the new branch*. SQL Editor opens against the new branch+database, Tables shows the new branch's tables. This is what Artem called "dynamic sidebar" — it's actually structural stability with target rebinding, which scales far better than a structurally morphing tree (registered Features don't disappear during scope changes).
 
 **Settings is a flat sub-list of ~10 items** — not nested groups. Easy to scan, hostile to deep nesting.
 
 **No documented global ⌘K** for the console (only the VS Code extension has Cmd+Shift+P).
 
 **What to borrow:**
-- Make the breadcrumb the scope cascade. `Service > Scope (dataplane-id) > sub-Scope` belongs in one top-left control with each segment as a popover-picker. Don't split scope across a separate header dropdown.
+- Make the breadcrumb the scope cascade. `Product > Scope (dataplane-id) > sub-Scope` belongs in one top-left control with each segment as a popover-picker. Don't split scope across a separate header dropdown.
 - **Sidebar items stay; targets re-bind on scope change.** When `dataplane-id` changes, Nodes/Services/Overview/Govern stay put but bind to the new dataplane. This matches "dynamic" plug-in registration: registered items don't disappear during scope swaps.
 - Push depth into the page, not the sidebar — flat sub-lists like Settings scale to ~10 children without becoming a tree.
-- Service switcher is an **additional level Neon doesn't have** — likely belongs to the *left* of the breadcrumb so the breadcrumb stays focused on scope cascade within the active Service.
+- Product switcher is an **additional level Neon doesn't have** — likely belongs to the *left* of the breadcrumb so the breadcrumb stays focused on scope cascade within the active Product.
 
 **Sources:** [Manage projects](https://neon.com/docs/manage/projects), [Manage branches](https://neon.com/docs/manage/branches), [Changelog Apr 25, 2025 (breadcrumb branch switching)](https://neon.com/docs/changelog/2025-04-25), [Changelog May 03, 2024](https://neon.com/docs/changelog/2024-05-03).
 
@@ -180,7 +180,7 @@ This is the **closest analog to our `dataplane-id` pattern**: the frequent, cont
 
 **One-org-at-a-time enforcement** — sidebar only shows projects for the active org; switching orgs reloads the home/landing scope. They consciously rejected a multi-org tree.
 
-**Service-specific settings co-located with the service** (the 2025-26 migration) — Settings live where the user already is (Database → Configuration, Auth → Configuration, etc.). Only truly cross-cutting settings (Data API, members, billing) stay central. Same pattern Cloudflare is shipping.
+**Feature-specific settings co-located with the Feature** (the 2025-26 migration) — Settings live where the user already is (Database → Configuration, Auth → Configuration, etc.). Only truly cross-cutting settings (Data API, members, billing) stay central. Same pattern Cloudflare is shipping.
 
 **Breadcrumb chevrons as sibling pickers.** Breadcrumb segments with siblings render as dropdown triggers — clicking opens a list of peer entities (other tables in the schema). A power-user accelerator that costs zero extra UI.
 
@@ -191,7 +191,7 @@ This is the **closest analog to our `dataplane-id` pattern**: the frequent, cont
 **Tabs in the editor** — VSCode-style transient (single-click, replaceable) vs permanent (double-click) tabs, with "Close Others" / "Close to the Right" / "Open in New Tab" context menu.
 
 **What to borrow:**
-- Registry-driven ⌘K with `useRegisterCommands`-style hook. Each Service's plug-in registration includes both routes *and* actions in the palette.
+- Registry-driven ⌘K with `useRegisterCommands`-style hook. Each Product's plug-in registration includes both routes *and* actions in the palette.
 - Co-located service settings, central tray for cross-cutting only.
 - Breadcrumb segments as sibling pickers (zero-cost level-3+ jump).
 
@@ -203,7 +203,7 @@ This is the **closest analog to our `dataplane-id` pattern**: the frequent, cont
 
 **Shell anatomy.** Three persistent vertical zones plus a header: top header → far-left **icon rail (4 tabs: Items / Services / History / Local files)** → relational sidebar → workbench → right context bar.
 
-**Type-first sidebar, not feature-first.** Level-2 sidebar lists *one element type at a time* (collections OR environments OR specs), not a menu of mixed Tools. The icon rail switches the lens.
+**Type-first sidebar, not feature-first.** Level-2 sidebar lists *one element type at a time* (collections OR environments OR specs), not a menu of mixed Features. The icon rail switches the lens.
 
 **Workbench tabs as the deep-state container.** 5+ levels deep doesn't pollute the tree — the leaf opens as a workbench tab. State persistence lives in tabs, not URLs/breadcrumbs. **No persistent breadcrumb** — title bar + back button + relational-sidebar selection state are the wayfinding crutches.
 
@@ -214,8 +214,8 @@ This is the **closest analog to our `dataplane-id` pattern**: the frequent, cont
 **Multi-level folders** with no documented depth cap — folder tree with indented disclosure triangles, drag/drop reorder. Selecting any node opens it as a workbench tab.
 
 **What to borrow:**
-- Right-side context bar for entity-scoped actions (especially well-suited to Scope-gated Tools).
-- Take the breadcrumb absence as a warning, not a model — Postman gets away with it because workspaces are usually small. Wallarm's variable-depth paths and cross-Service jumps need an explicit context strip.
+- Right-side context bar for entity-scoped actions (especially well-suited to Scope-gated Features).
+- Take the breadcrumb absence as a warning, not a model — Postman gets away with it because workspaces are usually small. Wallarm's variable-depth paths and cross-Product jumps need an explicit context strip.
 
 **Sources:** [Navigating Postman](https://learning.postman.com/docs/getting-started/basics/navigating-postman), [Sidebar Configurations](https://blog.postman.com/focus-on-the-work-that-matters-with-sidebar-configurations/), [Multi-level folders](https://blog.postman.com/multi-level-folders-and-folder-reordering/), [The New Postman](https://blog.postman.com/new-postman-is-here/).
 
@@ -236,9 +236,9 @@ This is the **closest analog to our `dataplane-id` pattern**: the frequent, cont
 **No global ⌘K** found in public materials. Search lives inside whichever surface you're on, not as a universal palette.
 
 **What to borrow:**
-- Cross-cutting Favorites / Pins surface that spans Services. Once Wallarm has 4+ Services with deep trees, users will lose track — pinning a route or policy across Services is the orientation lever.
+- Cross-cutting Favorites / Pins surface that spans Products. Once Wallarm has 4+ Products with deep trees, users will lose track — pinning a route or policy across Products is the orientation lever.
 - Editor-swap pattern is correct for level 4+ work (Zap editor / Postman workbench / Vercel deployment detail). For Wallarm's 5+ level paths, swap to a focused canvas with named back-button when the user goes deep into config.
-- **Don't replicate the peer-product rail.** Zapier gets away with it because their products are flat-listing-shaped. Wallarm Services have variable internal trees — keep an explicit Service tier.
+- **Don't replicate the peer-product rail.** Zapier gets away with it because their products are flat-listing-shaped. Wallarm Products have variable internal trees — keep an explicit Product tier.
 
 **Sources:** [Improvements to navigation](https://community.zapier.com/product-updates/improvements-coming-to-our-navigation-547), [February 2026 product updates](https://zapier.com/blog/february-2026-product-updates/), [Zap editor](https://help.zapier.com/hc/en-us/articles/16722578092429-Use-the-editor-to-build-and-view-your-Zaps), [Folders](https://help.zapier.com/hc/en-us/articles/8496327220877-Organize-your-Zaps-and-folders).
 
@@ -248,16 +248,16 @@ This is the **closest analog to our `dataplane-id` pattern**: the frequent, cont
 
 **The persona switcher was removed.** Strongest single signal in this whole report. Pre-2023 you had to pick "Data Science & Engineering / SQL / Machine Learning" mode before seeing relevant tools. The current UI replaced that with a unified sidebar where all three product areas are simultaneously visible as collapsible groups. **Databricks tried persona-mode-switching and walked it back.**
 
-**Two-tier sidebar.** Universal pillars at top (Workspace, Recents, Catalog, Jobs & Pipelines, Compute, Marketplace) + product-area groups below (SQL / Data Engineering / AI/ML — each collapsible with its own children). Locked-but-visible items for entitlement-gated Tools — items aren't hidden, they're disabled. **Discoverability over cleanliness.**
+**Two-tier sidebar.** Universal pillars at top (Workspace, Recents, Catalog, Jobs & Pipelines, Compute, Marketplace) + product-area groups below (SQL / Data Engineering / AI/ML — each collapsible with its own children). Locked-but-visible items for entitlement-gated Features — items aren't hidden, they're disabled. **Discoverability over cleanliness.**
 
-**Tool-scoped deep nav, not shell-scoped.** Catalog hierarchy (catalog → schema → table → column) lives inside Catalog Explorer with its own breadcrumb and right-rail metadata panel. Shell stays shallow.
+**Feature-scoped deep nav, not shell-scoped.** Catalog hierarchy (catalog → schema → table → column) lives inside Catalog Explorer with its own breadcrumb and right-rail metadata panel. Shell stays shallow.
 
 **Account vs Workspace as separate UIs.** Account console (`accounts.azuredatabricks.net`) is a different surface with its own narrower sidebar. Tenant-admin doesn't pollute operator workflows.
 
 **What to borrow:**
-- **Don't make Service a hard mode switch.** The strongest cross-cutting lesson. Surface all Services as collapsible groups + universal Platform utilities pinned above. Lock entitlement-gated items, don't hide them.
-- Two-tier sidebar (universal pillars + product groups) maps cleanly onto our Platform-utilities-vs-Service-tools split.
-- Push entity drill-down into the Tool, not the shell — your `dataplane-id`, `service-id`, `Route ID` cascade should live in the Tool's own breadcrumb / right-rail, not in global chrome.
+- **Don't make Product a hard mode switch.** The strongest cross-cutting lesson. Surface all Products as collapsible groups + universal Platform utilities pinned above. Lock entitlement-gated items, don't hide them.
+- Two-tier sidebar (universal pillars + product groups) maps cleanly onto our Platform-utilities-vs-Product-tools split.
+- Push entity drill-down into the Feature, not the shell — your `dataplane-id`, `service-id`, `Route ID` cascade should live in the Feature's own breadcrumb / right-rail, not in global chrome.
 - Consider Account / Platform admin as a context-jump to a separate UI rather than another sidebar item.
 
 **Sources:** [Find what you seek (new navigation)](https://www.databricks.com/blog/find-what-you-seek-new-navigation-ui), [The Improved Databricks Navigation is Enabled for Everyone](https://www.databricks.com/blog/the-improved-databricks-navigation-is-enabled-for-everyone), [Workspace Browser](https://www.databricks.com/blog/2023/04/05/preview-new-workspace-browser.html), [Catalog Explorer](https://www.databricks.com/blog/accelerating-discovery-unity-catalog-revamped-catalog-explorer).
@@ -300,9 +300,9 @@ This is the **closest analog to our `dataplane-id` pattern**: the frequent, cont
 **Levels 3+ are not sidebar nodes.** Issue → Event → Stack frame uses inline event dropdown + accordion in the main pane. Sidebars stay put as you drill (design tenet: *"Minimize Content Refreshes — preserve as much UI as possible (headers, sidebars) when navigating between views"*).
 
 **What to borrow:**
-- **The Sentry plug-in pattern is the spec we should write our Manifest against.** A uniform `<SecondaryNav>` portal component, each Service registers its own contents (with `Footer` slot for utility tools).
+- **The Sentry plug-in pattern is the spec we should write our Manifest against.** A uniform `<SecondaryNav>` portal component, each Product registers its own contents (with `Footer` slot for utility tools).
 - Scope filters belong in a page-level strip, not the sidebar.
-- Stacked nav: top-level Services are containers that swap the secondary column, not destinations themselves.
+- Stacked nav: top-level Products are containers that swap the secondary column, not destinations themselves.
 - Hover-flyout-when-collapsed + explicit pin toggle for persistent expanded state.
 
 **Sources:** [Sentry's new Navigation (GA)](https://sentry.io/changelog/new-nav-issue-views-ga/), [EPIC Stacked Navigation](https://github.com/getsentry/sentry/issues/84016), [EPIC Milestone 1](https://github.com/getsentry/sentry/issues/84018), [SecondaryNav PR](https://github.com/getsentry/sentry/pull/83687), [Frontend Design Tenets](https://develop.sentry.dev/frontend/design-tenets/).
@@ -322,9 +322,9 @@ This is the **closest analog to our `dataplane-id` pattern**: the frequent, cont
 **Truly global ⌘K** that indexes everything: 5 most recent items, all apps/tools by recency, persons by name or pasted ID, groups, organizations, all settings, "New X" creators, system utilities (SDK doctor, theme toggle), plus **Tab launches PostHog AI** with the current text. *"a single keystroke reaches anything in the app, which is how they justify removing the static top-level product list."*
 
 **What to borrow:**
-- **Don't enumerate Services in chrome forever.** The single biggest lesson at growth: pinned-shortcuts model + searchable Service registry scales where fixed top-bar switcher does not.
+- **Don't enumerate Products in chrome forever.** The single biggest lesson at growth: pinned-shortcuts model + searchable Product registry scales where fixed top-bar switcher does not.
 - Truly global ⌘K (entities + settings + actions) is the escape hatch that lets you delete navigation.
-- `g`-prefix chord shortcuts for scope-swap surfaces — fastest possible cross-Service jump.
+- `g`-prefix chord shortcuts for scope-swap surfaces — fastest possible cross-Product jump.
 
 **Sources:** [Redesigned nav menu](https://posthog.com/blog/redesigned-nav-menu), [PostHog 3000](https://posthog.com/blog/posthog-as-a-dev-tool), [Command palette](https://posthog.com/docs/cmd-k).
 
@@ -334,20 +334,20 @@ This is the **closest analog to our `dataplane-id` pattern**: the frequent, cont
 
 **Two-level sidebar ceiling, depth in page chrome.** Pajamas spec is explicit: only two visual levels in the sidebar (top-level item + sub-level items). Anything deeper goes to in-page tabs / sub-sub-tabs / URL state. GitLab handles 5+ logical levels (group → subgroup → project → MR → diff → comment) without ever exceeding two sidebar levels. **The discipline is: sidebar = "where am I working", page = "what am I doing inside it."**
 
-**Per-scope pinning with persistent scope-sets.** Hover any sub-level item → thumbtack → click pins it to a "Pinned" section at the top of the sub-nav. Pin sets are scoped — what you pin in *any* project is independent from what you pin in *any* group. Map this to Wallarm: a user's pinned Tools inside any Edge service appear in every Edge sidebar; pins inside any AI Hypervisor service appear there.
+**Per-scope pinning with persistent scope-sets.** Hover any sub-level item → thumbtack → click pins it to a "Pinned" section at the top of the sub-nav. Pin sets are scoped — what you pin in *any* project is independent from what you pin in *any* group. Map this to Wallarm: a user's pinned Features inside any Edge service appear in every Edge sidebar; pins inside any AI Hypervisor service appear there.
 
 **Plug-in registration via a `Sidebars::Panel` subclass.** Each scope (Project, Group, Admin, Your Work) is its own Panel object that owns its sections. The shell asks the active Panel "what are your sections?" — variable breadth and depth become the Panel's problem, not the shell's. **This is the architectural pattern for our Manifest.**
 
-**Stage-style top-level grouping** (Plan / Code / Build / Secure / Deploy / Operate / Monitor / Analyze) is more durable than feature-name grouping. Adding a new Tool slots into an existing stage. Wallarm should resist a flat list of Tools per Service — group them by job-to-be-done so new Tools don't repressure the IA.
+**Stage-style top-level grouping** (Plan / Code / Build / Secure / Deploy / Operate / Monitor / Analyze) is more durable than feature-name grouping. Adding a new Feature slots into an existing stage. Wallarm should resist a flat list of Features per Product — group them by job-to-be-done so new Features don't repressure the IA.
 
 **Single command-palette as the multi-product switcher.** "Search or go to" with sigil prefixes: `:` projects, `@` users, `~` files, `>` commands, plain text = global search. One palette absorbs all the cross-scope nav.
 
 **Breadcrumb is the cascade.** Sidebar shows context label + sub-nav; ancestry lives in the breadcrumb at the top of the content area. Clicking ancestor segments goes up the tree.
 
 **What to borrow:**
-- **Two-level sidebar ceiling is the rule.** Combined with stage-style grouping (verbs/lifecycle phases) it absorbs new Tools without IA pressure.
+- **Two-level sidebar ceiling is the rule.** Combined with stage-style grouping (verbs/lifecycle phases) it absorbs new Features without IA pressure.
 - Per-scope pinning (pinned within Edge appears in every Edge instance, etc.) — a Manifest can declare "pinnable" items.
-- Sigil-prefixed ⌘K: `:` Services, `@` entities (`dataplane-id`, `route-id`), `>` actions.
+- Sigil-prefixed ⌘K: `:` Products, `@` entities (`dataplane-id`, `route-id`), `>` actions.
 - Plug-in registration as a Panel object that owns its sections.
 
 **Sources:** [Tutorial: Navigate the GitLab interface](https://docs.gitlab.com/tutorials/left_sidebar/), [Pajamas Navigation sidebar](https://design.gitlab.com/usability/navigation-sidebar/), [Command palette docs](https://docs.gitlab.com/user/search/command_palette/), [Pin sidebar items #378547](https://gitlab.com/gitlab-org/gitlab/-/issues/378547), [Cmd+K issue #421947](https://gitlab.com/gitlab-org/gitlab/-/issues/421947).
@@ -362,12 +362,12 @@ These are the primitives that show up across multiple vendors. Building blocks f
 
 | Brick | What it is | Vendors | Notes |
 |---|---|---|---|
-| **Top utility cluster** | account avatar, notifications, help, search, ⌘K trigger | All | Right side of top bar; **never** part of any Service's nav |
-| **Service rail** | persistent left rail listing Services | Cloudflare, Intercom, Postman (icon rail), Sentry (4 areas), GitLab, Databricks | Two flavors: full-sidebar list (Cloudflare) or icon-only rail (Postman, Sentry, Intercom partial) |
-| **Service switcher in palette** | Services discoverable through ⌘K, not chrome | PostHog, GitLab (sigil `:`) | Used when product count > ~10 |
+| **Top utility cluster** | account avatar, notifications, help, search, ⌘K trigger | All | Right side of top bar; **never** part of any Product's nav |
+| **Product rail** | persistent left rail listing Products | Cloudflare, Intercom, Postman (icon rail), Sentry (4 areas), GitLab, Databricks | Two flavors: full-sidebar list (Cloudflare) or icon-only rail (Postman, Sentry, Intercom partial) |
+| **Product switcher in palette** | Products discoverable through ⌘K, not chrome | PostHog, GitLab (sigil `:`) | Used when product count > ~10 |
 | **Scope picker in top bar** | org / project / workspace | Vercel, Supabase, Postman, PostHog, Amplitude (Spaces) | For frequent scope-swap |
 | **Scope picker as breadcrumb** | top-left segment-clickable scope cascade | Neon, Kong (CP), Supabase | For very frequent scope-swap; one control does both location and selection |
-| **All-Services catalog page** | full-page list of all Services + categories, separate from working sidebar | GCP, PostHog (Products dropdown) | Decouples discovery from daily-driver nav |
+| **All-Products catalog page** | full-page list of all Products + categories, separate from working sidebar | GCP, PostHog (Products dropdown) | Decouples discovery from daily-driver nav |
 
 ### Sidebar
 
@@ -393,7 +393,7 @@ These are the primitives that show up across multiple vendors. Building blocks f
 | **Bucketed palette results** | results grouped by scope (account-wide vs zone-specific) | Cloudflare, Supabase | Solves the static-vs-scoped split Artem flagged |
 | **Registry-driven palette** | each section calls `useRegisterCommands` at runtime | Supabase | Plug-in Manifest hook |
 | **Search-as-IA-aliasing** | search indexes both old and new names during a redesign | Cloudflare | Migration shim |
-| **Scope-preserving slot** | switching project lands you on the same Tool, not project home | Vercel | Cross-Service teleport without context loss |
+| **Scope-preserving slot** | switching project lands you on the same Feature, not project home | Vercel | Cross-Product teleport without context loss |
 | **Filter strip (page-level scope)** | sticky horizontal strip with project / env / date | Sentry | Scope pickers that are page-level, not nav-level |
 | **Page-level breadcrumb** | top of content area, full path, segments are clickable | GitLab, Cloudflare, Supabase, Kong, GCP | The depth carrier when sidebar caps at 2 |
 | **Breadcrumb sibling-picker** | chevron on segment opens list of peers | Supabase | Power-user accelerator at zero UI cost |
@@ -402,7 +402,7 @@ These are the primitives that show up across multiple vendors. Building blocks f
 | **In-page tabs on entity** | level 3 — tabs under entity header (Metrics / Logs / Settings) | Cloudflare, GCP, Vercel, Supabase, Sentry | Standard for level 3 |
 | **Filter-and-zoom-in-place** | level 5 — no navigation, just refine the current view | Vercel (Observability), Cloudflare (R2), Amplitude | When data hierarchy is genuinely flat |
 | **Distributed Settings** | service settings co-locate with the service | Cloudflare, Supabase | Trend; only cross-cutting settings stay central |
-| **Cross-product Favorites / Recents** | flat overlay across Service silos | Zapier, GitLab, Vercel, GCP | Orientation lever as Service count grows |
+| **Cross-product Favorites / Recents** | flat overlay across Product silos | Zapier, GitLab, Vercel, GCP | Orientation lever as Product count grows |
 | **Account console as separate UI** | tenant-admin lives in a different surface | Databricks | Keeps platform admin out of operator workflows |
 | **Hierarchical URL** | `/[scope1]/[scope2]/[product]/[entity]/...` | Cloudflare, Vercel, Supabase, PostHog | Shell renders nav from URL state — **load-bearing for plug-in model** |
 
@@ -427,14 +427,14 @@ Mapping each open question (from `open-items.md`) to vendor evidence so decision
 | Switch frequency | Placement | Wallarm example |
 |---|---|---|
 | Rare (months) | Settings deep link or top-right corner | Tenant / billing scope |
-| Occasional (days) | Top bar dropdown or breadcrumb segment | Service (Edge / AI Hypervisor / etc.) |
+| Occasional (days) | Top bar dropdown or breadcrumb segment | Product (Edge / AI Hypervisor / etc.) |
 | Frequent (multiple/day) | Sidebar header or breadcrumb segment | `dataplane-id` Scope |
-| Page-level (per view) | Inline filter strip on the page | Time range, environment within a Tool |
+| Page-level (per view) | Inline filter strip on the page | Time range, environment within a Feature |
 
-### Service switcher form — what's the shape?
+### Product switcher form — what's the shape?
 
 **Evidence:** Tile launchers (waffle) are **absent** from every reference. The shapes that exist:
-- **Peer-product rail** (Zapier, Intercom, Cloudflare, Kong, Supabase) — Services as siblings in one rail
+- **Peer-product rail** (Zapier, Intercom, Cloudflare, Kong, Supabase) — Products as siblings in one rail
 - **Stacked-secondary** (Sentry) — top-level area swaps secondary column
 - **Hamburger with categories** (GCP) — pin-driven; closest to a launcher but still anchored in the sidebar
 - **Persona / mode switch** (old Databricks) — **explicitly walked back**; abandoned 2023
@@ -445,22 +445,22 @@ Mapping each open question (from `open-items.md`) to vendor evidence so decision
 
 **Evidence:** **Replace, don't stack** is universal. Cloudflare's same-rail-three-meanings, Kong's CP push-replace, Sentry's stacked-swap, Vercel's scope-reframe, Neon's stable-structure-rebound-targets.
 
-**Implication:** When a Service shapeshifts on Scope selection, the same sidebar replaces its contents. We do not add a second column.
+**Implication:** When a Product shapeshifts on Scope selection, the same sidebar replaces its contents. We do not add a second column.
 
 ### Deep paths — full tree vs focus
 
 **Evidence:** Universal: focus, not full tree. Sidebar at 2 levels max; depth lives in tabs (level 3), drawers (level 4), filter-zoom (level 5). Vercel demonstrates this exact tier-by-tier toolkit.
 
-### Two render states for every gated Tool
+### Two render states for every gated Feature
 
 **Evidence:** Confirmed across Cloudflare (account-home before zone), Kong (CP list before in-CP), Supabase (project list before in-project), Vercel (team home before project), Neon (project list before in-project).
 
-**Implication:** Every gated Tool needs both states designed: (a) "pick a scope" — list / search / recent / empty state; (b) "scope selected" — contextual sub-nav. Plus a "last-used scope" memory to short-circuit (a) when reasonable.
+**Implication:** Every gated Feature needs both states designed: (a) "pick a scope" — list / search / recent / empty state; (b) "scope selected" — contextual sub-nav. Plus a "last-used scope" memory to short-circuit (a) when reasonable.
 
 ### Manifest contract — what does a team declare?
 
 **Evidence:**
-- **Sentry**: `<SecondaryNav>` portal component with `Body` → `BodySection` → `Item` + `Footer` slot — each Service team renders their own.
+- **Sentry**: `<SecondaryNav>` portal component with `Body` → `BodySection` → `Item` + `Footer` slot — each Product team renders their own.
 - **GitLab**: `Sidebars::Panel` subclass per scope class. Panel owns sections.
 - **Supabase**: `useRegisterCommands` for palette integration.
 
@@ -470,21 +470,21 @@ Mapping each open question (from `open-items.md`) to vendor evidence so decision
 
 **Evidence:** **No.** Universal cap at 2. Recursion happens in *content* (Postman folders, Cloudflare R2 prefixes, GCP Catalog tree) not chrome.
 
-### Cross-Service teleport without context loss
+### Cross-Product teleport without context loss
 
-**Evidence:** Vercel's "scope-preserving slot" — switching project lands you on the same Tool. Supabase's "auto-redirect to last active organization." GitLab's per-scope pin persistence.
+**Evidence:** Vercel's "scope-preserving slot" — switching project lands you on the same Feature. Supabase's "auto-redirect to last active organization." GitLab's per-scope pin persistence.
 
-**Implication:** Adopt Vercel's rule for Wallarm: switching Service lands on the same Tool slot if the target Service has it; otherwise fall back to that Service's home. Persist last-used Scope per Service so re-entering doesn't force a fresh pick.
+**Implication:** Adopt Vercel's rule for Wallarm: switching Product lands on the same Feature slot if the target Product has it; otherwise fall back to that Product's home. Persist last-used Scope per Product so re-entering doesn't force a fresh pick.
 
 ### Platform utilities — placement and ownership
 
 **Evidence:** Top-bar right cluster is universal for account / notifications / help / ⌘K trigger. Settings is increasingly **distributed** (Cloudflare, Supabase migrating that way) — only cross-cutting settings stay central.
 
-**Implication:** Platform utilities live in the top bar's right cluster. A "Settings" Platform utility exists for cross-cutting (members, billing, audit), but Tool-specific settings co-locate with the Tool inside the Service.
+**Implication:** Platform utilities live in the top bar's right cluster. A "Settings" Platform utility exists for cross-cutting (members, billing, audit), but Feature-specific settings co-locate with the Feature inside the Product.
 
 ### "Overview" as per-level convention
 
-**Evidence:** Confirmed across vendors. Most have a "Home / Overview" at every meaningful level (Service home, Scope home, etc.). Not a dedicated slot — a convention each team opts into.
+**Evidence:** Confirmed across vendors. Most have a "Home / Overview" at every meaningful level (Product home, Scope home, etc.). Not a dedicated slot — a convention each team opts into.
 
 **Implication:** The Manifest should reserve the *concept* of an Overview (always at index 0 in a section if present) without forcing teams to ship one.
 
@@ -494,42 +494,42 @@ Mapping each open question (from `open-items.md`) to vendor evidence so decision
 
 Concrete starting positions for v0. Each is rooted in vendor precedent — citation in parentheses.
 
-1. **Two-level sidebar ceiling, hard rule.** Sidebar shows Service-level top items + one level of sub-items. Anything deeper is page chrome — tabs, drawers, filter strips, breadcrumb-with-pickers. *(GitLab Pajamas; Intercom; Sentry design tenets.)*
+1. **Two-level sidebar ceiling, hard rule.** Sidebar shows Product-level top items + one level of sub-items. Anything deeper is page chrome — tabs, drawers, filter strips, breadcrumb-with-pickers. *(GitLab Pajamas; Intercom; Sentry design tenets.)*
 
-2. **Service rail as a left-side persistent control.** The four current Services (Edge, AI Hypervisor, Infra Discovery, Testing) plus future ones live as siblings in a left rail. Don't model this as a tile launcher. *(Zapier, Cloudflare, Kong, Sentry stacked.)* Once we exceed ~8-10 Services, an "All Services" catalog page becomes the discovery surface and the rail shows pinned ones. *(GCP, PostHog.)*
+2. **Product rail as a left-side persistent control.** The four current Products (Edge, AI Hypervisor, Infra Discovery, Testing) plus future ones live as siblings in a left rail. Don't model this as a tile launcher. *(Zapier, Cloudflare, Kong, Sentry stacked.)* Once we exceed ~8-10 Products, an "All Products" catalog page becomes the discovery surface and the rail shows pinned ones. *(GCP, PostHog.)*
 
 3. **Scope picker placement by frequency:**
    - **Tenant** (very rare) → Settings deep link
-   - **Service** (occasional) → left-rail click (the Service rail itself)
+   - **Product** (occasional) → left-rail click (the Product rail itself)
    - **`dataplane-id`** (frequent) → top-of-sidebar slot or breadcrumb segment, entered by *drilling* through the Edge → Dataplane list
    - **Time range / region / env** (page-level) → page filter strip
    *(Kong's frequency rule; Sentry filter strip; Neon breadcrumb-as-picker.)*
 
-4. **Replace, don't stack, on scope-in.** When `dataplane-id` is selected, the Edge sidebar replaces its content with `Nodes / Services / Overview / Govern`. No second column. The Service rail stays put. *(Cloudflare, Kong push-replace.)*
+4. **Replace, don't stack, on scope-in.** When `dataplane-id` is selected, the Edge sidebar replaces its content with `Nodes / Services / Overview / Govern`. No second column. The Product rail stays put. *(Cloudflare, Kong push-replace.)*
 
 5. **Stable structure, dynamic binding.** Sub-nav items don't disappear on scope change — they re-bind to the new scope. Plug-in registrations are durable. *(Neon's "dynamic sidebar.")*
 
-6. **Page-level breadcrumb scoped to the active Service.** Top of content area, full path: `Service > Scope > Tool > Entity > sub-Entity`. Each segment is a clickable picker (sibling list popover on chevron-click). This is our depth carrier. *(GitLab, Cloudflare, Supabase chevron-pickers, Neon.)* Note: this matches Artem's existing annotation on Vercel ("breadcrumbs scoped on product level").
+6. **Page-level breadcrumb scoped to the active Product.** Top of content area, full path: `Product > Scope > Feature > Entity > sub-Entity`. Each segment is a clickable picker (sibling list popover on chevron-click). This is our depth carrier. *(GitLab, Cloudflare, Supabase chevron-pickers, Neon.)* Note: this matches Artem's existing annotation on Vercel ("breadcrumbs scoped on product level").
 
-7. **Distributed Settings.** Service-specific settings live in the Service's sidebar; cross-cutting Settings (members, billing, audit, integrations) are a Platform utility in the top bar. *(Cloudflare's recent migration, Supabase's recent migration.)*
+7. **Distributed Settings.** Product-specific settings live in the Product's sidebar; cross-cutting Settings (members, billing, audit, integrations) are a Platform utility in the top bar. *(Cloudflare's recent migration, Supabase's recent migration.)*
 
-8. **⌘K from day one.** Sigil-prefixed palette: `:` for Services, `@` for entities (any Resource by ID — `dataplane-id`, `route-id`, `policy-id`), `>` for actions, plain text for global search. Bucketed results: "Platform-wide" vs "Current Service." Registry-driven (each Service's Manifest declares its commands). *(GitLab sigils, PostHog scope, Supabase registry, Cloudflare bucketed results.)*
+8. **⌘K from day one.** Sigil-prefixed palette: `:` for Products, `@` for entities (any Resource by ID — `dataplane-id`, `route-id`, `policy-id`), `>` for actions, plain text for global search. Bucketed results: "Platform-wide" vs "Current Product." Registry-driven (each Product's Manifest declares its commands). *(GitLab sigils, PostHog scope, Supabase registry, Cloudflare bucketed results.)*
 
 9. **Sidebar collapse model: hover-flyout + explicit pin.** Default expanded. Collapse to icon-only via `cmd+B` (matches Artem's note). Hovering a collapsed item surfaces the same sub-nav contents in a flyout. Explicit toggle commits to expanded-and-persisted. *(Sentry EPIC, Supabase, Intercom.)*
 
-10. **Manifest contract** (first cut, to refine): each Service team declares
+10. **Manifest contract** (first cut, to refine): each Product team declares
     - **Identity**: id, name, icon, category
     - **Sidebar**: sections (titled groups, optional pinnable, optional scope-picker slot, optional footer items)
     - **Routes**: URL patterns mapping to sections; scope requirements (which Resource ID is needed before this route renders)
     - **Palette commands**: actions registered into ⌘K (with optional sigil)
-    - **Settings**: which sub-routes are "settings for this Tool" (so they co-locate)
+    - **Settings**: which sub-routes are "settings for this Feature" (so they co-locate)
     *(Sentry `<SecondaryNav>` shape + GitLab `Sidebars::Panel` + Supabase `useRegisterCommands` combined.)*
 
-11. **Cross-Service teleport rule**: switching Service lands on the same Tool slot if target Service has it; otherwise on Service home. Persist last-used Scope per Service. *(Vercel's "improved cross-team experience.")*
+11. **Cross-Product teleport rule**: switching Product lands on the same Feature slot if target Product has it; otherwise on Product home. Persist last-used Scope per Product. *(Vercel's "improved cross-team experience.")*
 
-12. **Pinning** (post-v0, not blocker): per-Scope pinned Tools (Edge pins persist across all Edge dataplane scopes; AI Hypervisor pins persist across its instances). *(GitLab.)*
+12. **Pinning** (post-v0, not blocker): per-Scope pinned Features (Edge pins persist across all Edge dataplane scopes; AI Hypervisor pins persist across its instances). *(GitLab.)*
 
-13. **Lock-and-show, don't hide.** Tools the current user lacks entitlement for stay visible but disabled, with a lock icon and a "this is gated by X" tooltip. *(Databricks.)*
+13. **Lock-and-show, don't hide.** Features the current user lacks entitlement for stay visible but disabled, with a lock icon and a "this is gated by X" tooltip. *(Databricks.)*
 
 14. **Editor-swap for level-4+ work.** When a user drills into editing a `flow` or a complex `policy-id` configuration, the chrome can be replaced with a focused canvas + named back-button. Use sparingly — Vercel and Postman do this only for genuinely deep flows. *(Vercel deployment detail, Postman workbench, Zapier Zap editor.)*
 
@@ -541,17 +541,17 @@ Concrete starting positions for v0. Each is rooted in vendor precedent — citat
 
 Several questions in [open-items.md](open-items.md) now have strong vendor precedent — they move toward "tentatively decided" rather than fully open. Specifically:
 
-- **Service switcher form** → peer-product rail (or Sentry-style stacked); tile launchers off the table.
+- **Product switcher form** → peer-product rail (or Sentry-style stacked); tile launchers off the table.
 - **Replace vs stack on scope-in** → replace is universal.
 - **Deep paths: full tree vs focus** → focus (sidebar caps at 2 levels).
 - **Recursive sub-nav** → no, universal cap at 2.
-- **Two render states for every gated Tool** → confirmed; both states must exist.
+- **Two render states for every gated Feature** → confirmed; both states must exist.
 - **"Overview" as per-level convention** → it's a convention, not a slot.
 
 New questions surfaced by the research, captured in `open-items.md`:
 - Plug-in Manifest exact shape (Sentry / GitLab / Supabase patterns to consolidate).
-- "Lock-and-show" vs "hide" for entitlement-gated Tools.
-- Whether Marketplace-style external integrations look identical to platform Services after install (Vercel) or are visually marked.
+- "Lock-and-show" vs "hide" for entitlement-gated Features.
+- Whether Marketplace-style external integrations look identical to platform Products after install (Vercel) or are visually marked.
 - Sigil set for our ⌘K palette.
 
 ---
