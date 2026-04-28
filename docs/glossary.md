@@ -39,6 +39,7 @@ Cross-cutting:
 | **Palette** | Global ⌘K command surface with sigil prefixes and bucketed results | proposal |
 | **Pin** | User-controlled affordance to surface an item to the top of a sub-nav | proposal |
 | **Hover-flyout** | Collapsed-sidebar render mode (hover icon → flyout sub-nav) | proposal |
+| **Switcher hover-preview** | Hover a Product in the rail → its level-2 sub-nav overlays the current second column for the duration of the hover | proposal |
 | **Editor-swap** | Chrome takeover for level-4+ deep work | proposal |
 | **Detail drawer** | Right-side slide-in panel for entity detail (list stays behind) | proposal |
 | **Lock-and-show** | Entitlement-gated Features rendered as visible-but-disabled (not hidden) | proposal |
@@ -152,6 +153,18 @@ User-controlled affordance to surface an item to the top of a sub-nav (or rail).
 ### Hover-flyout — **proposal**
 
 The collapsed-sidebar render mode: when the sidebar is collapsed to icons, hovering an icon surfaces the same sub-nav contents in an absolute-positioned flyout. Paired with an **explicit pin/expand toggle** (often `cmd+B`) that commits to the expanded state and persists per-user. Sentry / Supabase / Intercom / Cloudflare pattern.
+
+### Switcher hover-preview — **proposal**
+
+When the user hovers a Product (or Platform utility) in the left rail, that target's level-2 sub-nav appears as an **overlay on top of the current second column**. The overlay is visible only while the cursor is hovering; moving the cursor away restores the original second column. Lets the user peek what's in another Product without committing to a Product switch.
+
+Distinct from **Hover-flyout**: Hover-flyout activates from a *collapsed* sidebar's icons. Switcher hover-preview activates from the always-visible *Product rail* and overlays an *expanded* second column.
+
+Click semantics:
+- **Click on the rail Product itself** → commit. Navigate to the target Product's default landing; current Product state is **not** preserved (per the v0 Cross-Product teleport decision — see [wireframes-flow.md](wireframes-flow.md)).
+- **Click on a Feature inside the hover overlay** → commit. Navigate to that Feature in the target Product (resets current Product state). *Defaulted; confirm with Artem.*
+
+Wireframed in Figma `1GJb0riOtfuLA8MMqrDdCo` canvas `77:5101` (verbal Q4 answer, 2026-04-28). Not directly observed in the reference research vendors — it's an Artem-specific design choice for letting users navigate the platform laterally without losing where they are mid-hover.
 
 ### Editor-swap — **proposal**
 
