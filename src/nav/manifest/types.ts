@@ -27,6 +27,13 @@ export interface PlatformUtilityManifest {
    * as empty placeholders for type compatibility.
    */
   externalUrl?: string;
+  /**
+   * Visual treatment for the rail-item hover affordance. Default behavior (when
+   * unset) is the full-height flyout that mirrors the second column. `dropdown`
+   * renders a compact menu instead — appropriate for small utilities (User,
+   * with Profile/Theme/Sign out) where a flyout would be over-scaled.
+   */
+  previewMode?: 'dropdown';
 }
 
 export type SidebarNode = FeatureNode | GroupNode | CategoryNode;

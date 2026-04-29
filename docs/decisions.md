@@ -42,6 +42,20 @@
 
 **Owner:** Artem
 
+## 2026-04-29 — Global ⌘K search v1: basic, no sigils
+
+**Decision:** Ship global search as a flat ranked palette over the manifest. Free-text input, products + features as results, "Suggested" empty state listing product roots, ↑↓/Enter/Esc keyboard nav. Triggered by ⌘K from anywhere or the top-bar pill.
+
+**Context:** The cross-vendor research (`references.md`) calls ⌘K "non-optional at our depth/breadth" with sigil-prefixed bucketed results (`:` Products, `@` entities by Resource ID, `>` actions). v1 deliberately skips that — plain text, no sigils, no per-bucket grouping. Goal is to get a working search surface in front of teammates fast; the dialog's empty state is also the planned home for the Recent list.
+
+**Alternatives considered:**
+- Sigil bucketing on day one — rejected as over-engineering for v1; users won't have learned the prefix grammar yet, and we don't have entity-level resources searchable across all products to make `@` meaningful.
+- Per-Product (scoped) search alongside global — rejected for v1; one global surface is enough to validate the pattern.
+
+**Deferred:** Sigil grammar, Recent integration, locked-feature treatment in results, per-Product scope, palette-registered actions/commands. All natural v2 extensions when there's user signal that they're needed.
+
+**Owner:** Artem
+
 ## 2026-04-27 — Starting nav direction from Platform-jam: top-bar product switcher + per-product sidebar
 
 **Decision:** v0 prototype starts from a two-tier model — a top-bar product switcher above a per-product sidebar — based on the direction in the Figma `Platform-jam` board and design canvas.

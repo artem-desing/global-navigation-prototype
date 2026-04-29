@@ -3,12 +3,29 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useRef, useState } from 'react';
-import { Home as HomeIcon } from '@wallarm-org/design-system/icons';
+import { Home as HomeIcon, History as HistoryIcon } from '@wallarm-org/design-system/icons';
 import { Text } from '@wallarm-org/design-system/Text';
-import { getProductManifests, getPlatformUtilityManifests } from '@/nav/manifest/registry';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuItemContent,
+  DropdownMenuItemIcon,
+  DropdownMenuItemText,
+  DropdownMenuTrigger,
+} from '@wallarm-org/design-system/DropdownMenu';
+import { useRouter } from 'next/navigation';
+import {
+  getManifest,
+  getProductManifests,
+  getPlatformUtilityManifests,
+} from '@/nav/manifest/registry';
 import { resolveIcon } from '@/nav/manifest/icons';
 import type { ProductManifest, PlatformUtilityManifest } from '@/nav/manifest/types';
 import { HoverPreview } from './hover-preview';
+import { RecentsMenuItems } from '@/nav/recents/recents-preview';
+
+const RECENT_HOVER_ID = 'recent';
 
 const HOVER_HIDE_DELAY_MS = 150;
 
@@ -62,12 +79,32 @@ export function Rail() {
             IconComponent={HomeIcon}
             active={activeId === 'home'}
           />
+          <RecentRailItem
+            IconComponent={HistoryIcon}
+            open={hoveredId === RECENT_HOVER_ID}
+            onOpenChange={(o) => {
+              if (!o) setHoveredId(null);
+            }}
+            onTriggerEnter={() => showPreview(RECENT_HOVER_ID)}
+            onTriggerLeave={scheduleHide}
+            onContentEnter={cancelHide}
+            onContentLeave={scheduleHide}
+            onItemSelect={() => setHoveredId(null)}
+          />
+          <div
+            role="separator"
+            aria-orientation="horizontal"
+            className="mx-8 my-4 h-[1px]"
+            style={{ backgroundColor: 'var(--color-border-primary-light)' }}
+          />
           {products.map((p) => (
             <ProductRailItem
               key={p.id}
               product={p}
               active={activeId === p.id}
-              onHoverEnter={() => showPreview(p.id)}
+              onHoverEnter={() => {
+                if (activeId !== p.id) showPreview(p.id);
+              }}
               onHoverLeave={scheduleHide}
             />
           ))}
@@ -79,23 +116,93 @@ export function Rail() {
               key={u.id}
               utility={u}
               active={activeId === u.id}
+              hoveredId={hoveredId}
               onHoverEnter={() => {
-                if (!u.externalUrl) showPreview(u.id);
+                if (!u.externalUrl && activeId !== u.id) showPreview(u.id);
               }}
               onHoverLeave={scheduleHide}
+              onContentEnter={cancelHide}
+              onContentLeave={scheduleHide}
+              onDropdownClose={() => setHoveredId(null)}
+              onItemSelect={() => setHoveredId(null)}
             />
           ))}
         </div>
       </nav>
 
-      {hoveredId ? (
-        <HoverPreview
-          productId={hoveredId}
-          onMouseEnter={cancelHide}
-          onMouseLeave={scheduleHide}
-        />
-      ) : null}
+      {(() => {
+        if (!hoveredId || hoveredId === RECENT_HOVER_ID) return null;
+        const m = getManifest(hoveredId);
+        if (m?.type === 'platform-utility' && m.previewMode === 'dropdown') return null;
+        return (
+          <HoverPreview
+            productId={hoveredId}
+            onMouseEnter={cancelHide}
+            onMouseLeave={scheduleHide}
+          />
+        );
+      })()}
     </>
+  );
+}
+
+interface RecentRailItemProps {
+  IconComponent: React.ComponentType<{ size?: 'sm' | 'md'; 'aria-hidden'?: boolean }>;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onTriggerEnter: () => void;
+  onTriggerLeave: () => void;
+  onContentEnter: () => void;
+  onContentLeave: () => void;
+  onItemSelect: () => void;
+}
+
+function RecentRailItem({
+  IconComponent,
+  open,
+  onOpenChange,
+  onTriggerEnter,
+  onTriggerLeave,
+  onContentEnter,
+  onContentLeave,
+  onItemSelect,
+}: RecentRailItemProps) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <DropdownMenu
+      open={open}
+      onOpenChange={onOpenChange}
+      closeOnSelect
+      positioning={{ placement: 'right-start', gutter: 8 }}
+    >
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          aria-label="Recent"
+          onMouseEnter={() => {
+            setHovered(true);
+            onTriggerEnter();
+          }}
+          onMouseLeave={() => {
+            setHovered(false);
+            onTriggerLeave();
+          }}
+          className="flex flex-col items-center justify-center gap-4 rounded-md px-4 py-8 transition-colors"
+          style={{
+            backgroundColor: hovered ? 'var(--color-bg-light-primary)' : undefined,
+            color: 'var(--color-text-secondary)',
+          }}
+        >
+          <IconComponent size="md" aria-hidden />
+          <Text size="xs" color="inherit">
+            Recent
+          </Text>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent onMouseEnter={onContentEnter} onMouseLeave={onContentLeave}>
+        <RecentsMenuItems onItemSelect={onItemSelect} />
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -124,15 +231,25 @@ function ProductRailItem({ product, active, onHoverEnter, onHoverLeave }: Produc
 interface PlatformUtilityRailItemProps {
   utility: PlatformUtilityManifest;
   active: boolean;
+  hoveredId: string | null;
   onHoverEnter: () => void;
   onHoverLeave: () => void;
+  onContentEnter: () => void;
+  onContentLeave: () => void;
+  onDropdownClose: () => void;
+  onItemSelect: () => void;
 }
 
 function PlatformUtilityRailItem({
   utility,
   active,
+  hoveredId,
   onHoverEnter,
   onHoverLeave,
+  onContentEnter,
+  onContentLeave,
+  onDropdownClose,
+  onItemSelect,
 }: PlatformUtilityRailItemProps) {
   const IconComponent = resolveIcon(utility.icon);
   if (utility.externalUrl) {
@@ -142,6 +259,24 @@ function PlatformUtilityRailItem({
         label={utility.label}
         shortLabel={utility.shortLabel ?? utility.label}
         IconComponent={IconComponent}
+      />
+    );
+  }
+  if (utility.previewMode === 'dropdown') {
+    return (
+      <UtilityDropdownRailItem
+        utility={utility}
+        IconComponent={IconComponent}
+        active={active}
+        open={hoveredId === utility.id}
+        onOpenChange={(o) => {
+          if (!o) onDropdownClose();
+        }}
+        onTriggerEnter={onHoverEnter}
+        onTriggerLeave={onHoverLeave}
+        onContentEnter={onContentEnter}
+        onContentLeave={onContentLeave}
+        onItemSelect={onItemSelect}
       />
     );
   }
@@ -155,6 +290,100 @@ function PlatformUtilityRailItem({
       onMouseEnter={onHoverEnter}
       onMouseLeave={onHoverLeave}
     />
+  );
+}
+
+interface UtilityDropdownRailItemProps {
+  utility: PlatformUtilityManifest;
+  IconComponent?: React.ComponentType<{ size?: 'sm' | 'md'; 'aria-hidden'?: boolean }>;
+  active: boolean;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onTriggerEnter: () => void;
+  onTriggerLeave: () => void;
+  onContentEnter: () => void;
+  onContentLeave: () => void;
+  onItemSelect: () => void;
+}
+
+function UtilityDropdownRailItem({
+  utility,
+  IconComponent,
+  active,
+  open,
+  onOpenChange,
+  onTriggerEnter,
+  onTriggerLeave,
+  onContentEnter,
+  onContentLeave,
+  onItemSelect,
+}: UtilityDropdownRailItemProps) {
+  const router = useRouter();
+  const [hovered, setHovered] = useState(false);
+  const featureItems = utility.sidebar.filter(
+    (n): n is Extract<typeof n, { type: 'feature' }> => n.type === 'feature',
+  );
+  return (
+    <DropdownMenu
+      open={open}
+      onOpenChange={onOpenChange}
+      closeOnSelect
+      positioning={{ placement: 'right-end', gutter: 8 }}
+    >
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          aria-label={utility.label}
+          aria-current={active ? 'page' : undefined}
+          onMouseEnter={() => {
+            setHovered(true);
+            onTriggerEnter();
+          }}
+          onMouseLeave={() => {
+            setHovered(false);
+            onTriggerLeave();
+          }}
+          className="flex flex-col items-center justify-center gap-4 rounded-md px-4 py-8 transition-colors"
+          style={{
+            backgroundColor: active
+              ? 'var(--color-bg-primary)'
+              : hovered
+                ? 'var(--color-bg-light-primary)'
+                : undefined,
+            color: active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+          }}
+        >
+          {IconComponent ? <IconComponent size="md" aria-hidden /> : null}
+          <Text size="xs" color="inherit">
+            {utility.shortLabel ?? utility.label}
+          </Text>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent onMouseEnter={onContentEnter} onMouseLeave={onContentLeave}>
+        {featureItems.map((feature) => {
+          const FeatureIcon = resolveIcon(feature.icon);
+          return (
+            <DropdownMenuItem
+              key={feature.id}
+              value={feature.id}
+              onSelect={() => {
+                onItemSelect();
+                router.push(`/${utility.id}/${feature.id}`);
+              }}
+            >
+              {FeatureIcon ? (
+                <DropdownMenuItemIcon>
+                  <FeatureIcon size="sm" aria-hidden />
+                </DropdownMenuItemIcon>
+              ) : null}
+              <DropdownMenuItemContent>
+                <DropdownMenuItemText>{feature.label}</DropdownMenuItemText>
+              </DropdownMenuItemContent>
+            </DropdownMenuItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -177,16 +406,27 @@ function RailItem({
   onMouseEnter,
   onMouseLeave,
 }: RailItemProps) {
+  const [hovered, setHovered] = useState(false);
   return (
     <Link
       href={href}
       aria-label={label}
       aria-current={active ? 'page' : undefined}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      onMouseEnter={() => {
+        setHovered(true);
+        onMouseEnter?.();
+      }}
+      onMouseLeave={() => {
+        setHovered(false);
+        onMouseLeave?.();
+      }}
       className="flex flex-col items-center justify-center gap-4 rounded-md px-4 py-8 transition-colors"
       style={{
-        backgroundColor: active ? 'var(--color-bg-primary)' : 'transparent',
+        backgroundColor: active
+          ? 'var(--color-bg-primary)'
+          : hovered
+            ? 'var(--color-bg-light-primary)'
+            : undefined,
         color: active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
       }}
     >
@@ -206,15 +446,18 @@ interface ExternalRailItemProps {
 }
 
 function ExternalRailItem({ href, label, shortLabel, IconComponent }: ExternalRailItemProps) {
+  const [hovered, setHovered] = useState(false);
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`${label} (opens in new tab)`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       className="flex flex-col items-center justify-center gap-4 rounded-md px-4 py-8 transition-colors"
       style={{
-        backgroundColor: 'transparent',
+        backgroundColor: hovered ? 'var(--color-bg-light-primary)' : undefined,
         color: 'var(--color-text-secondary)',
       }}
     >

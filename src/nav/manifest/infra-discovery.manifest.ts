@@ -7,11 +7,31 @@ export const infraDiscoveryManifest: ProductManifest = {
   id: 'infra-discovery',
   label: 'Infra Discovery',
   shortLabel: 'INFRA',
-  icon: 'folder',
+  icon: 'layers-3',
   defaultLandingId: 'overview',
   sidebar: [
     { type: 'feature', id: 'overview', label: 'Overview' },
-    { type: 'feature', id: 'inventory', label: 'Inventory' },
+    {
+      type: 'group',
+      id: 'inventory',
+      label: 'Inventory',
+      collapsed: true,
+      children: [
+        { type: 'feature', id: 'inventory-all', label: 'All assets' },
+        { type: 'feature', id: 'inventory-untagged', label: 'Untagged' },
+        {
+          type: 'group',
+          id: 'inventory-by-source',
+          label: 'By source',
+          collapsed: true,
+          children: [
+            { type: 'feature', id: 'inventory-source-cloud', label: 'Cloud accounts' },
+            { type: 'feature', id: 'inventory-source-k8s', label: 'Kubernetes' },
+            { type: 'feature', id: 'inventory-source-vcs', label: 'Source control' },
+          ],
+        },
+      ],
+    },
     { type: 'feature', id: 'topology', label: 'Topology' },
     { type: 'feature', id: 'findings', label: 'Findings' },
     { type: 'feature', id: 'risks', label: 'Risks' },

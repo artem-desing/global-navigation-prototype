@@ -5,7 +5,7 @@ export const edgeManifest: ProductManifest = {
   id: 'edge',
   label: 'Edge',
   shortLabel: 'EDGE',
-  icon: 'folder',
+  icon: 'globe-lock',
   defaultLandingId: 'overview',
   sidebar: [
     { type: 'feature', id: 'overview', label: 'Overview' },
@@ -151,8 +151,18 @@ export const edgeManifest: ProductManifest = {
       label: 'Configuration',
       collapsed: true,
       children: [
-        { type: 'feature', id: 'nodes', label: 'Nodes' },
-        { type: 'feature', id: 'security-edge', label: 'Security Edge', locked: true, unlockFlag: 'securityEdgeUnlocked' },
+        {
+          type: 'group',
+          id: 'nodes',
+          label: 'Nodes',
+          collapsed: true,
+          children: [
+            { type: 'feature', id: 'nodes-overview', label: 'Overview' },
+            { type: 'feature', id: 'nodes-pools', label: 'Pools' },
+            { type: 'feature', id: 'nodes-health-checks', label: 'Health checks' },
+          ],
+        },
+        { type: 'feature', id: 'security-edge', label: 'Security Edge' },
         { type: 'feature', id: 'integrations', label: 'Integrations' },
       ],
     },

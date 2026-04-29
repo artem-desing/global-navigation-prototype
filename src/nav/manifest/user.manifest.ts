@@ -9,9 +9,10 @@ export const userManifest: PlatformUtilityManifest = {
   shortLabel: 'USER',
   icon: 'circle',
   defaultLandingId: 'profile',
+  previewMode: 'dropdown',
   sidebar: [
-    { type: 'feature', id: 'profile', label: 'Profile' },
-    { type: 'feature', id: 'theme', label: 'Theme' },
-    { type: 'feature', id: 'sign-out', label: 'Sign out' },
+    { type: 'feature', id: 'profile', label: 'Profile', icon: 'user' },
+    { type: 'feature', id: 'theme', label: 'Theme', icon: 'sun' },
+    { type: 'feature', id: 'sign-out', label: 'Sign out', icon: 'arrow-right' },
   ],
 };

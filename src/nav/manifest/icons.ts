@@ -6,7 +6,13 @@ import {
   Circle,
   ChevronDown,
   ChevronRight,
+  GlobeLock,
+  Activity,
+  Layers3,
+  Skull,
+  ArrowRight,
 } from '@wallarm-org/design-system/icons';
+import { User, Sun } from './custom-icons';
 
 export const iconRegistry = {
   folder: Folder,
@@ -16,6 +22,13 @@ export const iconRegistry = {
   circle: Circle,
   'chevron-down': ChevronDown,
   'chevron-right': ChevronRight,
+  'globe-lock': GlobeLock,
+  activity: Activity,
+  'layers-3': Layers3,
+  skull: Skull,
+  'arrow-right': ArrowRight,
+  user: User,
+  sun: Sun,
 } as const;
 
 export type IconKey = keyof typeof iconRegistry;

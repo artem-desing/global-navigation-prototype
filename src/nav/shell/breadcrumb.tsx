@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { ChevronRight, X as XIcon, Check } from '@wallarm-org/design-system/icons';
+import { ChevronRight, ChevronDown, Check } from '@wallarm-org/design-system/icons';
 import { Text } from '@wallarm-org/design-system/Text';
 import { Popover } from '@wallarm-org/design-system/Popover';
 import { PopoverTrigger } from '@wallarm-org/design-system/Popover';
@@ -54,6 +54,10 @@ function BreadcrumbStepRenderer({ step, showSeparator }: { step: BreadcrumbStep;
             </Text>
           </Link>
         )
+      ) : step.kind === 'group' ? (
+        <Text size="sm" color="secondary">
+          {step.label}
+        </Text>
       ) : (
         <ScopeChip step={step} />
       )}
@@ -71,14 +75,6 @@ function ScopeChip({ step }: { step: Extract<BreadcrumbStep, { kind: 'scope-chip
       }}
     >
       <ScopeChipBody step={step} />
-      <Link
-        href={step.clearHref}
-        aria-label={`Clear ${step.label} scope`}
-        className="ml-4 flex items-center justify-center rounded transition-colors"
-        style={{ color: 'var(--color-icon-secondary)' }}
-      >
-        <XIcon size="xs" aria-hidden />
-      </Link>
     </span>
   );
 }
@@ -96,10 +92,15 @@ function ScopeChipBody({ step }: { step: Extract<BreadcrumbStep, { kind: 'scope-
   // Fallback for not-yet-wired scope types (service-id / route-id / policy-id):
   // clicking the chip body navigates to that scope's level-N+1 default landing.
   return (
-    <Link href={step.href}>
+    <Link href={step.href} className="flex items-center gap-4">
       <Text size="sm" color="primary" weight="medium">
         {step.label}
       </Text>
+      <ChevronDown
+        size="xs"
+        aria-hidden
+        style={{ color: 'var(--color-icon-secondary)' }}
+      />
     </Link>
   );
 }
@@ -120,11 +121,16 @@ function DataPlaneSwapMenu({ step }: { step: Extract<BreadcrumbStep, { kind: 'sc
         <button
           type="button"
           aria-label={`Swap ${step.label} scope`}
-          className="cursor-pointer transition-colors hover:underline"
+          className="flex cursor-pointer items-center gap-4 transition-colors hover:underline"
         >
           <Text size="sm" color="primary" weight="medium">
             {step.label}
           </Text>
+          <ChevronDown
+            size="xs"
+            aria-hidden
+            style={{ color: 'var(--color-icon-secondary)' }}
+          />
         </button>
       </PopoverTrigger>
       <PopoverContent minWidth="240px">

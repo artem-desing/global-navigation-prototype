@@ -61,20 +61,26 @@ function GroupItem({
   hrefBuilder: (featureId: string) => string;
 }) {
   const [open, setOpen] = useState(!node.collapsed);
+  const [hovered, setHovered] = useState(false);
   const Chevron = open ? ChevronDown : ChevronRight;
   return (
     <li>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         aria-expanded={open}
         className="flex w-full items-center gap-6 rounded-md px-8 py-6 text-left transition-colors"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{
+          color: 'var(--color-text-secondary)',
+          backgroundColor: hovered ? 'var(--color-bg-light-primary)' : undefined,
+        }}
       >
-        <Chevron size="xs" aria-hidden />
         <Text size="sm" weight="medium" color="inherit" grow>
           {node.label}
         </Text>
+        <Chevron size="xs" aria-hidden />
       </button>
       {open ? (
         <ul
@@ -106,6 +112,7 @@ function FeatureItem({
 }) {
   const flags = useFlags();
   const locked = isFeatureLocked(node, flags);
+  const [hovered, setHovered] = useState(false);
   if (locked) {
     return (
       <li>
@@ -129,9 +136,15 @@ function FeatureItem({
       <Link
         href={hrefBuilder(node.id)}
         aria-current={active ? 'page' : undefined}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         className="flex items-center gap-8 rounded-md px-8 py-6 transition-colors"
         style={{
-          backgroundColor: active ? 'var(--color-bg-primary)' : 'transparent',
+          backgroundColor: active
+            ? 'var(--color-bg-primary)'
+            : hovered
+              ? 'var(--color-bg-light-primary)'
+              : undefined,
           color: active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
         }}
       >

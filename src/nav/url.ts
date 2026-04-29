@@ -5,6 +5,7 @@ import { resolveScopeName } from '@/lib/mock-data/scope-resolver';
 export type BreadcrumbStep =
   | { kind: 'product'; label: string; href: string }
   | { kind: 'feature'; label: string; href: string; current: boolean }
+  | { kind: 'group'; label: string }
   | {
       kind: 'scope-chip';
       label: string;
@@ -69,6 +70,11 @@ export function resolveShellContext(pathname: string): ShellContext {
     const segment = segments[i];
     const feature = findDirectFeature(sidebar, segment);
     if (!feature) return { mode: 'unknown', page: { kind: 'unknown' } };
+
+    const groupAncestors = findGroupAncestorLabels(sidebar, segment) ?? [];
+    for (const label of groupAncestors) {
+      breadcrumb.push({ kind: 'group', label });
+    }
 
     const isGated = !!feature.scopeRequirement;
     const hasChildren = !!feature.children && feature.children.length > 0;
@@ -211,6 +217,23 @@ export function findDirectFeature(nodes: SidebarNode[], featureId: string): Feat
     if (node.type === 'group') {
       const inGroup = findDirectFeature(node.children, featureId);
       if (inGroup) return inGroup;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Walks the sidebar tree to find which group(s) wrap the given feature, in
+ * order from outermost to innermost. Returns an empty array when the feature
+ * sits at the top level (or isn't found). Used by the breadcrumb to surface
+ * inline-expandable group ancestors that don't show up as URL segments.
+ */
+function findGroupAncestorLabels(nodes: SidebarNode[], featureId: string, trail: string[] = []): string[] | undefined {
+  for (const node of nodes) {
+    if (node.type === 'feature' && node.id === featureId) return trail;
+    if (node.type === 'group') {
+      const found = findGroupAncestorLabels(node.children, featureId, [...trail, node.label]);
+      if (found) return found;
     }
   }
   return undefined;
