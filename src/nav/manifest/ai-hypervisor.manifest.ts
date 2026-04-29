@@ -7,8 +7,8 @@ export const aiHypervisorManifest: ProductManifest = {
   type: 'product',
   id: 'ai-hypervisor',
   label: 'AI Hypervisor',
-  shortLabel: 'AI-H',
-  icon: 'activity',
+  shortLabel: 'AI Hypervisor',
+  icon: 'memory',
   defaultLandingId: 'heatmap',
   sidebar: [
     { type: 'feature', id: 'heatmap', label: 'Heatmap' },
@@ -39,9 +39,7 @@ export const aiHypervisorManifest: ProductManifest = {
     { type: 'feature', id: 'supply-chain', label: 'Supply Chain' },
     { type: 'feature', id: 'enforcement', label: 'Enforcement' },
     { type: 'feature', id: 'integrations', label: 'Integrations' },
-    { type: 'feature', id: 'red-team', label: 'Red Team', badge: 'β' },
-    // 'Ebbers' is the codename label visible in the screenshot — flagged in
-    // product-features.md as "clarify with Product team."
-    { type: 'feature', id: 'debugger', label: 'Debugger', badge: 'Ebbers' },
+    { type: 'feature', id: 'red-team', label: 'Red Team' },
+    { type: 'feature', id: 'debugger', label: 'Debugger' },
   ],
 };

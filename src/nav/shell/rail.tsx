@@ -65,7 +65,7 @@ export function Rail() {
     <>
       <nav
         aria-label="Global root navigation"
-        className="flex w-80 shrink-0 flex-col justify-between border-r py-12"
+        className="flex w-96 shrink-0 flex-col justify-between border-r py-12"
         style={{
           backgroundColor: 'var(--color-bg-surface-1)',
           borderColor: 'var(--color-border-primary-light)',
@@ -194,7 +194,7 @@ function RecentRailItem({
           }}
         >
           <IconComponent size="md" aria-hidden />
-          <Text size="xs" color="inherit">
+          <Text size="xs" color="inherit" align="center" lineHeight="tight">
             Recent
           </Text>
         </button>
@@ -323,6 +323,8 @@ function UtilityDropdownRailItem({
   const featureItems = utility.sidebar.filter(
     (n): n is Extract<typeof n, { type: 'feature' }> => n.type === 'feature',
   );
+  const isAvatar = utility.id === 'user';
+  const initials = isAvatar ? getInitials(utility.label) : null;
   return (
     <DropdownMenu
       open={open}
@@ -353,10 +355,23 @@ function UtilityDropdownRailItem({
             color: active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
           }}
         >
-          {IconComponent ? <IconComponent size="md" aria-hidden /> : null}
-          <Text size="xs" color="inherit">
-            {utility.shortLabel ?? utility.label}
-          </Text>
+          {isAvatar ? (
+            <span
+              className="flex h-36 w-36 items-center justify-center rounded-full"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              <Text size="sm" weight="medium" color="inherit">
+                {initials}
+              </Text>
+            </span>
+          ) : (
+            <>
+              {IconComponent ? <IconComponent size="md" aria-hidden /> : null}
+              <Text size="xs" color="inherit" align="center" lineHeight="tight">
+                {utility.shortLabel ?? utility.label}
+              </Text>
+            </>
+          )}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent onMouseEnter={onContentEnter} onMouseLeave={onContentLeave}>
@@ -431,7 +446,7 @@ function RailItem({
       }}
     >
       {IconComponent ? <IconComponent size="md" aria-hidden /> : null}
-      <Text size="xs" color="inherit">
+      <Text size="xs" color="inherit" align="center" lineHeight="tight">
         {shortLabel}
       </Text>
     </Link>
@@ -462,9 +477,16 @@ function ExternalRailItem({ href, label, shortLabel, IconComponent }: ExternalRa
       }}
     >
       {IconComponent ? <IconComponent size="md" aria-hidden /> : null}
-      <Text size="xs" color="inherit">
+      <Text size="xs" color="inherit" align="center" lineHeight="tight">
         {shortLabel}
       </Text>
     </a>
   );
+}
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }

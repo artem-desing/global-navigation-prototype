@@ -16,7 +16,8 @@ export interface ScopePickerProps<T> {
   subtitle: string;
   items: T[];
   columns: PickerColumn<T>[];
-  rowHref: (item: T) => string;
+  /** When omitted, rows render as static cells (no link, no hover treatment). */
+  rowHref?: (item: T) => string;
   addLabel?: string;
   emptyMessage?: string;
 }
@@ -30,6 +31,7 @@ export function ScopePicker<T>({
   addLabel,
   emptyMessage = 'Nothing here yet.',
 }: ScopePickerProps<T>) {
+  const interactive = !!rowHref;
   return (
     <section className="flex flex-col gap-24 p-32">
       <header className="flex items-start justify-between gap-16">
@@ -72,16 +74,20 @@ export function ScopePicker<T>({
             </thead>
             <tbody>
               {items.map((item, rowIdx) => {
-                const href = rowHref(item);
+                const href = interactive ? rowHref!(item) : null;
                 return (
                   <tr
                     key={(item as { id?: string }).id ?? rowIdx}
                     style={{ borderTop: '1px solid var(--color-border-primary-light)' }}
-                    className="transition-colors hover:bg-[var(--color-bg-light-primary)]"
+                    className={
+                      interactive
+                        ? 'transition-colors hover:bg-[var(--color-bg-light-primary)]'
+                        : ''
+                    }
                   >
                     {columns.map((col, colIdx) => (
                       <td key={col.key} className="px-16 py-12">
-                        {colIdx === 0 ? (
+                        {colIdx === 0 && href ? (
                           <Link href={href} className="hover:underline">
                             {col.render(item)}
                           </Link>

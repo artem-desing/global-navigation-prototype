@@ -12,7 +12,7 @@ import {
   Skull,
   ArrowRight,
 } from '@wallarm-org/design-system/icons';
-import { User, Sun } from './custom-icons';
+import { User, Sun, Memory } from './custom-icons';
 
 export const iconRegistry = {
   folder: Folder,
@@ -29,6 +29,7 @@ export const iconRegistry = {
   'arrow-right': ArrowRight,
   user: User,
   sun: Sun,
+  memory: Memory,
 } as const;
 
 export type IconKey = keyof typeof iconRegistry;

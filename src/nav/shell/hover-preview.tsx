@@ -21,9 +21,9 @@ export function HoverPreview({ productId, onMouseEnter, onMouseLeave }: HoverPre
       aria-label={`${manifest.label} preview`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      // Anchored next to the rail (w-80 = 80px) and below the top bar (h-48).
+      // Anchored next to the rail (w-96 = 96px) and below the top bar (h-48).
       // z-10 puts us above the actual second column when one is mounted.
-      className="fixed bottom-0 left-80 top-48 z-10 flex w-[256px] flex-col overflow-y-auto border-r py-12 shadow-lg"
+      className="fixed bottom-0 left-96 top-48 z-10 flex w-[256px] flex-col overflow-y-auto border-r py-12 shadow-lg"
       style={{
         backgroundColor: 'var(--color-bg-surface-1)',
         borderColor: 'var(--color-border-primary)',

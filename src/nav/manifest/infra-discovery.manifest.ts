@@ -6,7 +6,7 @@ export const infraDiscoveryManifest: ProductManifest = {
   type: 'product',
   id: 'infra-discovery',
   label: 'Infra Discovery',
-  shortLabel: 'INFRA',
+  shortLabel: 'Infra Discovery',
   icon: 'layers-3',
   defaultLandingId: 'overview',
   sidebar: [

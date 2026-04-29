@@ -33,6 +33,52 @@ export function User({ size, className, ...rest }: IconProps) {
 }
 User.displayName = 'UserIcon';
 
+export function Sparkles({ size, className, ...rest }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+      focusable={false}
+      className={[sizeClass(size), className].filter(Boolean).join(' ')}
+      {...STROKE_PROPS}
+      {...rest}
+    >
+      <path d="M9.5 3 11 7l4 1.5-4 1.5-1.5 4L8 10 4 8.5 8 7Z" />
+      <path d="M18 3v4" />
+      <path d="M16 5h4" />
+      <path d="M18 17v4" />
+      <path d="M16 19h4" />
+    </svg>
+  );
+}
+Sparkles.displayName = 'SparklesIcon';
+
+export function Memory({ size, className, ...rest }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+      focusable={false}
+      className={[sizeClass(size), className].filter(Boolean).join(' ')}
+      {...STROKE_PROPS}
+      {...rest}
+    >
+      <path d="M6 19v-3" />
+      <path d="M10 19v-3" />
+      <path d="M14 19v-3" />
+      <path d="M18 19v-3" />
+      <path d="M8 11V9" />
+      <path d="M16 11V9" />
+      <path d="M12 11V9" />
+      <path d="M2 15h20" />
+      <path d="M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1.1a2 2 0 0 0 0 3.837V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5.1a2 2 0 0 0 0-3.837Z" />
+    </svg>
+  );
+}
+Memory.displayName = 'MemoryIcon';
+
 export function Sun({ size, className, ...rest }: IconProps) {
   return (
     <svg

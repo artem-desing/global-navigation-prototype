@@ -9,8 +9,14 @@ import { DialogHeader } from '@wallarm-org/design-system/Dialog';
 import { DialogTitle } from '@wallarm-org/design-system/Dialog';
 import { DialogBody } from '@wallarm-org/design-system/Dialog';
 import { GlobalSearch } from '@/nav/search/global-search';
+import { Sparkles } from '@/nav/manifest/custom-icons';
 
-export function TopBar() {
+export interface TopBarProps {
+  aiOpen: boolean;
+  onToggleAI: () => void;
+}
+
+export function TopBar({ aiOpen, onToggleAI }: TopBarProps) {
   const [tenantDialogOpen, setTenantDialogOpen] = useState(false);
 
   return (
@@ -56,6 +62,23 @@ export function TopBar() {
             limits
           </Text>
         </div>
+
+        <button
+          type="button"
+          onClick={onToggleAI}
+          aria-pressed={aiOpen}
+          className="flex items-center gap-6 rounded-md px-8 py-4 transition-colors"
+          aria-label="Toggle AI assistant"
+          style={{
+            color: aiOpen ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+            backgroundColor: aiOpen ? 'var(--color-bg-light-primary)' : 'transparent',
+          }}
+        >
+          <Sparkles size="sm" />
+          <Text size="sm" color={aiOpen ? 'primary' : 'secondary'}>
+            AI assistant
+          </Text>
+        </button>
       </div>
 
       <Dialog open={tenantDialogOpen} onOpenChange={setTenantDialogOpen} width={480}>

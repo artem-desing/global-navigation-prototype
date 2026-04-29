@@ -52,13 +52,23 @@ export function resolveShellContext(pathname: string): ShellContext {
   const manifest = getManifest(productId);
   if (!manifest) return { mode: 'unknown', page: { kind: 'unknown' } };
 
-  // Initial state — Product home, level-2 sidebar, no scope.
+  // Sidebar / chrome state — what gets shown in the second column. Drives by
+  // gated-scope drills only. Once we hit an unscoped feature with children
+  // mid-URL we "freeze" this state: deeper segments still resolve into the
+  // breadcrumb and canvas, but the sidebar and active highlight stay put.
   let sidebar: SidebarNode[] = manifest.sidebar;
   let header = manifest.shortLabel ?? manifest.label;
   let backHref: string | null = null;
   let backLabel: string | null = null;
   let activeFeatureId: string | undefined = undefined;
   let urlSoFar = `/${manifest.id}`;
+  let frozen = false;
+
+  // Traversal state — diverges from sidebar after a freeze. Used purely to
+  // walk the URL, build the breadcrumb, and resolve the destination page.
+  let traversalNodes: SidebarNode[] = manifest.sidebar;
+  let traversalUrl = urlSoFar;
+
   const productHref = `/${manifest.id}/${manifest.defaultLandingId}`;
   const breadcrumb: BreadcrumbStep[] = [
     { kind: 'product', label: manifest.shortLabel ?? manifest.label, href: productHref },
@@ -68,17 +78,17 @@ export function resolveShellContext(pathname: string): ShellContext {
   let i = 1;
   while (i < segments.length) {
     const segment = segments[i];
-    const feature = findDirectFeature(sidebar, segment);
+    const feature = findDirectFeature(traversalNodes, segment);
     if (!feature) return { mode: 'unknown', page: { kind: 'unknown' } };
 
-    const groupAncestors = findGroupAncestorLabels(sidebar, segment) ?? [];
+    const groupAncestors = findGroupAncestorLabels(traversalNodes, segment) ?? [];
     for (const label of groupAncestors) {
       breadcrumb.push({ kind: 'group', label });
     }
 
     const isGated = !!feature.scopeRequirement;
     const hasChildren = !!feature.children && feature.children.length > 0;
-    const featureUrl = `${urlSoFar}/${segment}`;
+    const featureUrl = `${traversalUrl}/${segment}`;
 
     if (isGated) {
       if (i + 1 < segments.length) {
@@ -100,21 +110,26 @@ export function resolveShellContext(pathname: string): ShellContext {
         });
 
         if (feature.children && feature.children.length > 0) {
-          // Drill into the gated Feature's children for level-N+1.
-          sidebar = feature.children;
-          header = scopeName;
-          backHref = featureUrl; // < back returns to the scope picker
-          backLabel = feature.label; // e.g. "Data planes"
-          urlSoFar = scopeUrl;
-          activeFeatureId = undefined;
+          // Drill into the gated Feature's children for level-N+1 — but only
+          // touch the rendered sidebar if we haven't frozen yet.
+          if (!frozen) {
+            sidebar = feature.children;
+            header = scopeName;
+            backHref = featureUrl;
+            backLabel = feature.label;
+            urlSoFar = scopeUrl;
+            activeFeatureId = undefined;
+          }
+          traversalNodes = feature.children;
+          traversalUrl = scopeUrl;
           i += 2;
           continue;
         }
 
         // Scope leaf: the gated Feature has no children — the resource IS the destination
-        // (e.g. `policies/<policy-id>`). Sidebar stays as the parent's, with the gated
-        // Feature highlighted; canvas renders the scope-leaf detail page.
-        activeFeatureId = feature.id;
+        // (e.g. `policies/<policy-id>`). When not frozen, sidebar stays as the parent's
+        // with the gated Feature highlighted; when frozen, the existing active id wins.
+        if (!frozen) activeFeatureId = feature.id;
         page = {
           kind: 'scope-leaf',
           scopeRequirement: feature.scopeRequirement!,
@@ -125,8 +140,7 @@ export function resolveShellContext(pathname: string): ShellContext {
         return finalize(manifest, sidebar, header, backHref, backLabel, activeFeatureId, urlSoFar, breadcrumb, page);
       } else {
         // Gated but no scope picked yet → render the scope picker page.
-        // Sidebar stays as the parent's; the gated Feature is highlighted.
-        activeFeatureId = feature.id;
+        if (!frozen) activeFeatureId = feature.id;
         breadcrumb.push({ kind: 'feature', label: feature.label, href: featureUrl, current: true });
         page = {
           kind: 'scope-picker',
@@ -137,34 +151,35 @@ export function resolveShellContext(pathname: string): ShellContext {
         return finalize(manifest, sidebar, header, backHref, backLabel, activeFeatureId, urlSoFar, breadcrumb, page);
       }
     } else if (hasChildren) {
-      // Unscoped drillable Feature.
+      // Unscoped feature with children. Per the chrome rules, this NEVER drills
+      // the sidebar — chrome drills are reserved for scope (gated) selection.
+      // The first unscoped-with-children we see freezes the sidebar.
       if (i + 1 < segments.length) {
-        // Drill into the children.
         breadcrumb.push({ kind: 'feature', label: feature.label, href: featureUrl, current: false });
-        sidebar = feature.children!;
-        header = feature.label;
-        backHref = urlSoFar; // < back to parent sidebar
-        backLabel = manifest.shortLabel ?? manifest.label; // best-effort parent label
-        urlSoFar = featureUrl;
-        activeFeatureId = undefined;
+        if (!frozen) {
+          activeFeatureId = feature.id;
+          frozen = true;
+        }
+        traversalNodes = feature.children!;
+        traversalUrl = featureUrl;
         i += 1;
         continue;
       } else {
-        // Landed on a drillable parent — redirect to its first child.
-        const defaultChildId = pickDefaultChild(feature);
-        if (defaultChildId) {
-          page = { kind: 'redirect', target: `${featureUrl}/${defaultChildId}` };
-        } else {
-          // No children at all — render the feature as a placeholder.
+        // Landed on the parent itself — render it as a feature page. We don't
+        // auto-redirect into the first child anymore: chrome drills are scope-
+        // only, and the user explicitly clicked this level, so this *is* the
+        // destination. Freeze the sidebar here so the current chrome stays.
+        if (!frozen) {
           activeFeatureId = feature.id;
-          breadcrumb.push({ kind: 'feature', label: feature.label, href: featureUrl, current: true });
-          page = { kind: 'feature', feature, path: featureUrl };
+          frozen = true;
         }
+        breadcrumb.push({ kind: 'feature', label: feature.label, href: featureUrl, current: true });
+        page = { kind: 'feature', feature, path: featureUrl };
         return finalize(manifest, sidebar, header, backHref, backLabel, activeFeatureId, urlSoFar, breadcrumb, page);
       }
     } else {
       // Terminal Feature.
-      activeFeatureId = feature.id;
+      if (!frozen) activeFeatureId = feature.id;
       breadcrumb.push({ kind: 'feature', label: feature.label, href: featureUrl, current: true });
       page = { kind: 'feature', feature, path: featureUrl };
       return finalize(manifest, sidebar, header, backHref, backLabel, activeFeatureId, urlSoFar, breadcrumb, page);
@@ -172,11 +187,10 @@ export function resolveShellContext(pathname: string): ShellContext {
   }
 
   // Fell off the end of segments without hitting a terminal/picker case.
-  // This means we just drilled into a sub-sidebar but no further feature was named.
-  // → redirect to the first feature in the current sidebar.
-  const defaultId = pickFirstFeatureId(sidebar);
+  // → redirect to the first feature reachable from the current traversal level.
+  const defaultId = pickFirstFeatureId(traversalNodes);
   if (defaultId) {
-    page = { kind: 'redirect', target: `${urlSoFar}/${defaultId}` };
+    page = { kind: 'redirect', target: `${traversalUrl}/${defaultId}` };
   }
   return finalize(manifest, sidebar, header, backHref, backLabel, activeFeatureId, urlSoFar, breadcrumb, page);
 }
@@ -237,11 +251,6 @@ function findGroupAncestorLabels(nodes: SidebarNode[], featureId: string, trail:
     }
   }
   return undefined;
-}
-
-function pickDefaultChild(feature: FeatureNode): string | undefined {
-  if (!feature.children) return undefined;
-  return pickFirstFeatureId(feature.children);
 }
 
 function pickFirstFeatureId(nodes: SidebarNode[]): string | undefined {

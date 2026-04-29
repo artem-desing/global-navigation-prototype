@@ -2,15 +2,14 @@ import { Text } from '@wallarm-org/design-system/Text';
 import { getRoutesByServiceId } from '@/lib/mock-data/routes';
 import { ScopePicker, MethodPill } from './scope-picker';
 
-export function RoutesPicker({ basePath, serviceId }: { basePath: string; serviceId: string }) {
+export function RoutesPicker({ serviceId }: { basePath: string; serviceId: string }) {
   const routes = getRoutesByServiceId(serviceId);
   return (
     <ScopePicker
       title="Routes"
-      subtitle={`Routes attached to service \`${serviceId}\`. Click a route to drill into its flow and policies.`}
+      subtitle={`Routes attached to service \`${serviceId}\`.`}
       items={routes}
       addLabel="ADD new"
-      rowHref={(r) => `${basePath}/${r.id}`}
       emptyMessage={`No routes attached to ${serviceId} yet.`}
       columns={[
         {

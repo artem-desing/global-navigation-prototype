@@ -10,6 +10,8 @@ import { ServicesPicker } from '@/nav/shell/scope-pickers/services';
 import { RoutesPicker } from '@/nav/shell/scope-pickers/routes';
 import { PoliciesPicker } from '@/nav/shell/scope-pickers/policies';
 import { HeatmapPage } from '@/nav/shell/feature-pages/heatmap';
+import { RolesPage } from '@/nav/shell/feature-pages/roles';
+import { TestSuitesPage } from '@/nav/shell/feature-pages/test-suites';
 import { LockedWarning } from '@/nav/shell/feature-pages/locked-warning';
 
 export function CatchAllClient() {
@@ -46,6 +48,12 @@ export function CatchAllClient() {
     const productOrUtility = pathname.split('/').filter(Boolean)[0];
     if (productOrUtility === 'ai-hypervisor' && page.feature.id === 'heatmap') {
       return <HeatmapPage />;
+    }
+    if (productOrUtility === 'settings' && page.feature.id === 'users-roles') {
+      return <RolesPage />;
+    }
+    if (productOrUtility === 'testing' && page.feature.id === 'test-suites') {
+      return <TestSuitesPage />;
     }
     return (
       <PlaceholderPage

@@ -19,7 +19,17 @@ export const settingsManifest: PlatformUtilityManifest = {
     { type: 'feature', id: 'general', label: 'General' },
     { type: 'feature', id: 'subscriptions', label: 'Subscriptions' },
     { type: 'feature', id: 'applications', label: 'Applications' },
-    { type: 'feature', id: 'users', label: 'Users' },
+    {
+      type: 'group',
+      id: 'users',
+      label: 'Users',
+      collapsed: true,
+      children: [
+        { type: 'feature', id: 'users-all', label: 'All users' },
+        { type: 'feature', id: 'users-invites', label: 'Pending invites' },
+        { type: 'feature', id: 'users-roles', label: 'Roles' },
+      ],
+    },
     { type: 'feature', id: 'groups', label: 'Groups' },
     { type: 'feature', id: 'api-tokens', label: 'API Tokens' },
     { type: 'feature', id: 'activity-log', label: 'Activity Log' },
@@ -29,7 +39,17 @@ export const settingsManifest: PlatformUtilityManifest = {
       label: 'Admin Zone',
       children: [
         { type: 'feature', id: 'customer-settings', label: 'Customer Settings' },
-        { type: 'feature', id: 'system-configuration', label: 'System Configuration' },
+        {
+          type: 'group',
+          id: 'system-configuration',
+          label: 'System Configuration',
+          collapsed: true,
+          children: [
+            { type: 'feature', id: 'system-configuration-general', label: 'General' },
+            { type: 'feature', id: 'system-configuration-storage', label: 'Storage' },
+            { type: 'feature', id: 'system-configuration-networking', label: 'Networking' },
+          ],
+        },
         { type: 'feature', id: 'bola-triggers', label: 'BOLA Triggers' },
         { type: 'feature', id: 'experiments', label: 'Experiments' },
       ],

@@ -4,7 +4,7 @@ export const edgeManifest: ProductManifest = {
   type: 'product',
   id: 'edge',
   label: 'Edge',
-  shortLabel: 'EDGE',
+  shortLabel: 'Edge',
   icon: 'globe-lock',
   defaultLandingId: 'overview',
   sidebar: [
