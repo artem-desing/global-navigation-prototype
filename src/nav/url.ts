@@ -44,8 +44,30 @@ export type ShellContext =
       page: PageKind;
     };
 
-export function resolveShellContext(pathname: string): ShellContext {
-  const segments = pathname.split('/').filter(Boolean);
+export interface ResolveOptions {
+  /**
+   * Path segment(s) that prefix every resolved URL — e.g. `/v/v0` for the
+   * manifest-driven variant. The resolver strips this from `pathname` before
+   * walking, then prepends it to every emitted href so chrome links survive
+   * the round-trip. Pass an empty string (default) for unprefixed routes.
+   */
+  variantPrefix?: string;
+}
+
+export function resolveShellContext(
+  pathname: string,
+  options: ResolveOptions = {},
+): ShellContext {
+  const variantPrefix = options.variantPrefix ?? '';
+  const variantSegmentCount = variantPrefix
+    ? variantPrefix.split('/').filter(Boolean).length
+    : 0;
+
+  const stripped =
+    variantPrefix && pathname.startsWith(variantPrefix)
+      ? pathname.slice(variantPrefix.length) || '/'
+      : pathname;
+  const segments = stripped.split('/').filter(Boolean);
   if (segments.length === 0) return { mode: 'home', page: { kind: 'home' } };
 
   const productId = segments[0];
@@ -61,7 +83,7 @@ export function resolveShellContext(pathname: string): ShellContext {
   let backHref: string | null = null;
   let backLabel: string | null = null;
   let activeFeatureId: string | undefined = undefined;
-  let urlSoFar = `/${manifest.id}`;
+  let urlSoFar = `${variantPrefix}/${manifest.id}`;
   let frozen = false;
 
   // Traversal state — diverges from sidebar after a freeze. Used purely to
@@ -69,7 +91,7 @@ export function resolveShellContext(pathname: string): ShellContext {
   let traversalNodes: SidebarNode[] = manifest.sidebar;
   let traversalUrl = urlSoFar;
 
-  const productHref = `/${manifest.id}/${manifest.defaultLandingId}`;
+  const productHref = `${variantPrefix}/${manifest.id}/${manifest.defaultLandingId}`;
   const breadcrumb: BreadcrumbStep[] = [
     { kind: 'product', label: manifest.shortLabel ?? manifest.label, href: productHref },
   ];
@@ -106,7 +128,11 @@ export function resolveShellContext(pathname: string): ShellContext {
           clearHref: featureUrl, // back to the picker
           scopeRequirement: feature.scopeRequirement!,
           resourceId: scopeSegment,
-          scopeSegmentIndex: i + 1, // the scope id sits one past the gated feature
+          // Index is reported in FULL pathname coordinates (variantPrefix
+          // included) so the breadcrumb's swap-menu can splice the URL
+          // directly. `i + 1` is the scope id position in the stripped
+          // segments; add the variant prefix's segment count to align.
+          scopeSegmentIndex: i + 1 + variantSegmentCount,
         });
 
         if (feature.children && feature.children.length > 0) {

@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
-import { TopBar } from './top-bar';
-import { Rail } from './rail';
-import { SecondColumn } from './second-column';
-import { Breadcrumb } from './breadcrumb';
-import { FlagPanel } from './flag-panel';
-import { AIAssistantPanel } from './ai-assistant-panel';
+import { TopBar } from '@/nav/variants/v0/top-bar';
+import { SecondColumn } from '@/nav/variants/v0/second-column';
+import { Breadcrumb } from '@/nav/variants/v0/breadcrumb';
+import { FlagPanel } from '@/nav/shell/flag-panel';
+import { AIAssistantPanel } from '@/nav/shell/ai-assistant-panel';
 import { RecentsTracker } from '@/nav/recents/recents-tracker';
+import { Rail } from './rail';
 
-export function ShellLayout({ children }: { children: ReactNode }) {
+export function Shell({ children }: { children: ReactNode }) {
   const [aiOpen, setAIOpen] = useState(false);
 
   return (
@@ -17,7 +17,7 @@ export function ShellLayout({ children }: { children: ReactNode }) {
       <RecentsTracker />
       <div className="flex flex-1 min-w-0 flex-col">
         <TopBar aiOpen={aiOpen} onToggleAI={() => setAIOpen((v) => !v)} />
-        <div className="flex flex-1 min-h-0">
+        <div className="relative flex flex-1 min-h-0">
           <Rail />
           <SecondColumn />
           <main

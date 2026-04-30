@@ -1,5 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# Claude Code: keep persona shims at .claude/agents/, ignore local-machine config
+.claude/settings.local.json
+.claude/skills/
+
 # dependencies
 /node_modules
 /.pnp

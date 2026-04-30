@@ -12,14 +12,23 @@ export interface RecentEntry {
   recordedAt: number;
 }
 
-const STORAGE_KEY = 'nav.recents';
-const RECENTS_EVENT = 'nav-recents-changed';
+const RECENTS_EVENT_PREFIX = 'nav-recents-changed';
 const MAX_RECENTS = 5;
 
-function read(): RecentEntry[] {
+/** Variant-namespaced storage key — switching variants doesn't pollute recents. */
+function storageKey(variantSlug: string): string {
+  return `nav:v:${variantSlug}:recents`;
+}
+
+/** Per-variant event name — only consumers of THIS variant re-render on writes. */
+function eventName(variantSlug: string): string {
+  return `${RECENTS_EVENT_PREFIX}:${variantSlug}`;
+}
+
+function read(variantSlug: string): RecentEntry[] {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(storageKey(variantSlug));
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -29,10 +38,10 @@ function read(): RecentEntry[] {
   }
 }
 
-function write(entries: RecentEntry[]) {
+function write(variantSlug: string, entries: RecentEntry[]) {
   if (typeof window === 'undefined') return;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    window.localStorage.setItem(storageKey(variantSlug), JSON.stringify(entries));
   } catch {
     // quota exceeded or storage disabled — ignore in a prototype
   }
@@ -51,29 +60,30 @@ function isRecentEntry(value: unknown): value is RecentEntry {
   );
 }
 
-export function recordRecent(entry: Omit<RecentEntry, 'recordedAt'>) {
-  const current = read();
+export function recordRecent(variantSlug: string, entry: Omit<RecentEntry, 'recordedAt'>) {
+  const current = read(variantSlug);
   const filtered = current.filter((e) => e.path !== entry.path);
   const next = [{ ...entry, recordedAt: Date.now() }, ...filtered].slice(0, MAX_RECENTS);
-  write(next);
+  write(variantSlug, next);
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent(RECENTS_EVENT));
+    window.dispatchEvent(new CustomEvent(eventName(variantSlug)));
   }
 }
 
-export function useRecents(): RecentEntry[] {
+export function useRecents(variantSlug: string): RecentEntry[] {
   const [recents, setRecents] = useState<RecentEntry[]>([]);
 
   useEffect(() => {
-    setRecents(read());
-    const handler = () => setRecents(read());
-    window.addEventListener(RECENTS_EVENT, handler);
+    setRecents(read(variantSlug));
+    const handler = () => setRecents(read(variantSlug));
+    const evt = eventName(variantSlug);
+    window.addEventListener(evt, handler);
     window.addEventListener('storage', handler);
     return () => {
-      window.removeEventListener(RECENTS_EVENT, handler);
+      window.removeEventListener(evt, handler);
       window.removeEventListener('storage', handler);
     };
-  }, []);
+  }, [variantSlug]);
 
   return recents;
 }

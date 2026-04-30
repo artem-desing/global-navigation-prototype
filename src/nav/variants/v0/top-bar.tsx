@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Globe, ChevronDown, Activity } from '@wallarm-org/design-system/icons';
 import { Text } from '@wallarm-org/design-system/Text';
 import { Dialog } from '@wallarm-org/design-system/Dialog';
@@ -28,9 +29,21 @@ export function TopBar({ aiOpen, onToggleAI }: TopBarProps) {
       }}
     >
       <div className="flex items-center gap-8">
-        <Text size="md" weight="bold" color="primary">
-          Wallarm
-        </Text>
+        {/*
+         * Wordmark = escape hatch to the variant picker. Hidden door is
+         * deliberate for the prototype phase; revisit before any real-product
+         * use (memory: project_wordmark_as_picker_escape_hatch).
+         */}
+        <Link
+          href="/"
+          aria-label="Switch prototype variant"
+          title="Switch prototype variant"
+          className="rounded-md px-4 py-2 transition-colors hover:bg-[var(--color-bg-light-primary)]"
+        >
+          <Text size="md" weight="bold" color="primary">
+            Wallarm
+          </Text>
+        </Link>
       </div>
 
       <div className="flex flex-1 max-w-md items-center justify-center">
@@ -63,22 +76,24 @@ export function TopBar({ aiOpen, onToggleAI }: TopBarProps) {
           </Text>
         </div>
 
-        <button
-          type="button"
-          onClick={onToggleAI}
-          aria-pressed={aiOpen}
-          className="flex items-center gap-6 rounded-md px-8 py-4 transition-colors"
-          aria-label="Toggle AI assistant"
-          style={{
-            color: aiOpen ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-            backgroundColor: aiOpen ? 'var(--color-bg-light-primary)' : 'transparent',
-          }}
-        >
-          <Sparkles size="sm" />
-          <Text size="sm" color={aiOpen ? 'primary' : 'secondary'}>
-            AI assistant
-          </Text>
-        </button>
+        {/*
+         * Hide the trigger while the panel is open — the panel has its own
+         * header with a close affordance, so showing both reads as duplication.
+         */}
+        {aiOpen ? null : (
+          <button
+            type="button"
+            onClick={onToggleAI}
+            className="flex items-center gap-6 rounded-md px-8 py-4 transition-colors"
+            aria-label="Open AI assistant"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            <Sparkles size="sm" />
+            <Text size="sm" color="secondary">
+              AI assistant
+            </Text>
+          </button>
+        )}
       </div>
 
       <Dialog open={tenantDialogOpen} onOpenChange={setTenantDialogOpen} width={480}>

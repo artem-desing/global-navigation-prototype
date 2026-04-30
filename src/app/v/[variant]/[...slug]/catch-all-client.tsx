@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Heading } from '@wallarm-org/design-system/Heading';
 import { Text } from '@wallarm-org/design-system/Text';
 import { resolveShellContext } from '@/nav/url';
+import { useVariant } from '@/nav/variant-context';
 import { DataPlanesPicker } from '@/nav/shell/scope-pickers/data-planes';
 import { ServicesPicker } from '@/nav/shell/scope-pickers/services';
 import { RoutesPicker } from '@/nav/shell/scope-pickers/routes';
@@ -17,7 +18,8 @@ import { LockedWarning } from '@/nav/shell/feature-pages/locked-warning';
 export function CatchAllClient() {
   const pathname = usePathname();
   const router = useRouter();
-  const ctx = resolveShellContext(pathname);
+  const { slug: variantSlug } = useVariant();
+  const ctx = resolveShellContext(pathname, { variantPrefix: `/v/${variantSlug}` });
 
   // Static export can't perform server-side redirects, so we redirect on the
   // client. Effect runs only when ctx.page actually wants a redirect; while
@@ -45,7 +47,9 @@ export function CatchAllClient() {
   }
 
   if (page.kind === 'feature') {
-    const productOrUtility = pathname.split('/').filter(Boolean)[0];
+    // Identify the product/utility that owns this feature page. Segments are
+    // ['v', '<variant>', '<productId>', ...] under the variant route shape.
+    const productOrUtility = pathname.split('/').filter(Boolean)[2];
     if (productOrUtility === 'ai-hypervisor' && page.feature.id === 'heatmap') {
       return <HeatmapPage />;
     }

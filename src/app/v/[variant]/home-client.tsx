@@ -5,8 +5,12 @@ import { Heading } from '@wallarm-org/design-system/Heading';
 import { Text } from '@wallarm-org/design-system/Text';
 import { Card } from '@wallarm-org/design-system/Card';
 import { homeSummary, recentActivity, type ActivityEvent } from '@/lib/mock-data/home-summary';
+import { useVariant, withVariantPrefix } from '@/nav/variant-context';
 
-export default function HomePage() {
+export function VariantHomeClient() {
+  const { slug } = useVariant();
+  const href = (path: string) => withVariantPrefix(slug, path);
+
   return (
     <section className="flex flex-col gap-32 p-32">
       <header className="flex flex-col gap-4">
@@ -20,7 +24,7 @@ export default function HomePage() {
 
       <div className="grid grid-cols-1 gap-16 lg:grid-cols-3">
         <SummaryCard
-          href="/edge/overview"
+          href={href('/edge/overview')}
           title="Edge"
           metrics={[
             { label: 'Data planes', value: homeSummary.edge.activeDataPlanes, sub: 'all active' },
@@ -32,7 +36,7 @@ export default function HomePage() {
         />
 
         <SummaryCard
-          href="/ai-hypervisor/heatmap"
+          href={href('/ai-hypervisor/heatmap')}
           title="AI Hypervisor"
           metrics={[
             { label: 'Monitored assets', value: homeSummary.aiHypervisor.totalAssets.toLocaleString() },
@@ -43,7 +47,7 @@ export default function HomePage() {
         />
 
         <SummaryCard
-          href="/testing/results"
+          href={href('/testing/results')}
           title="Testing"
           metrics={[
             { label: 'Coverage', value: `${homeSummary.testing.coveragePercent}%` },
@@ -53,7 +57,7 @@ export default function HomePage() {
         />
       </div>
 
-      <ActivityFeed events={recentActivity} />
+      <ActivityFeed events={recentActivity} variantSlug={slug} />
     </section>
   );
 }
@@ -112,7 +116,7 @@ function SummaryCard({
   );
 }
 
-function ActivityFeed({ events }: { events: ActivityEvent[] }) {
+function ActivityFeed({ events, variantSlug }: { events: ActivityEvent[]; variantSlug: string }) {
   return (
     <section className="flex flex-col gap-12">
       <Text size="sm" weight="medium" color="primary">
@@ -120,27 +124,30 @@ function ActivityFeed({ events }: { events: ActivityEvent[] }) {
       </Text>
       <Card>
         <ul className="flex flex-col">
-          {events.map((event, idx) => (
-            <li
-              key={event.id}
-              style={{
-                borderTop: idx === 0 ? 'none' : '1px solid var(--color-border-primary-light)',
-              }}
-            >
-              {event.href ? (
-                <Link
-                  href={event.href}
-                  className="flex items-center gap-12 px-16 py-12 transition-colors hover:bg-[var(--color-bg-light-primary)]"
-                >
-                  <ActivityRow event={event} />
-                </Link>
-              ) : (
-                <div className="flex items-center gap-12 px-16 py-12">
-                  <ActivityRow event={event} />
-                </div>
-              )}
-            </li>
-          ))}
+          {events.map((event, idx) => {
+            const eventHref = event.href ? withVariantPrefix(variantSlug, event.href) : null;
+            return (
+              <li
+                key={event.id}
+                style={{
+                  borderTop: idx === 0 ? 'none' : '1px solid var(--color-border-primary-light)',
+                }}
+              >
+                {eventHref ? (
+                  <Link
+                    href={eventHref}
+                    className="flex items-center gap-12 px-16 py-12 transition-colors hover:bg-[var(--color-bg-light-primary)]"
+                  >
+                    <ActivityRow event={event} />
+                  </Link>
+                ) : (
+                  <div className="flex items-center gap-12 px-16 py-12">
+                    <ActivityRow event={event} />
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </Card>
     </section>

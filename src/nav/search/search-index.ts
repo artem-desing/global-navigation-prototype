@@ -24,31 +24,40 @@ export function getProductRoots(items: SearchItem[]): SearchItem[] {
   return items.filter((item) => item.breadcrumb.length === 1);
 }
 
-export function buildSearchIndex(): SearchItem[] {
+/**
+ * Build the search index for a given variant. Hrefs are emitted with the
+ * `/v/<slug>` prefix already baked in so result-row clicks navigate inside
+ * the variant rather than escaping to the picker.
+ */
+export function buildSearchIndex(variantSlug: string): SearchItem[] {
   const items: SearchItem[] = [];
+  const prefix = `/v/${variantSlug}`;
 
   for (const product of getProductManifests()) {
-    items.push(buildProductItem(product));
-    walkSidebar(product, product.sidebar, [`/${product.id}`], [product.label], items);
+    items.push(buildProductItem(product, prefix));
+    walkSidebar(product, product.sidebar, [`${prefix}/${product.id}`], [product.label], items);
   }
 
   for (const utility of getPlatformUtilityManifests()) {
     if (utility.externalUrl) continue;
-    items.push(buildProductItem(utility));
-    walkSidebar(utility, utility.sidebar, [`/${utility.id}`], [utility.label], items);
+    items.push(buildProductItem(utility, prefix));
+    walkSidebar(utility, utility.sidebar, [`${prefix}/${utility.id}`], [utility.label], items);
   }
 
   return items;
 }
 
-function buildProductItem(p: ProductManifest | PlatformUtilityManifest): SearchItem {
+function buildProductItem(
+  p: ProductManifest | PlatformUtilityManifest,
+  prefix: string,
+): SearchItem {
   return {
     id: p.id,
     label: p.label,
     productLabel: p.label,
     productIcon: p.icon,
     breadcrumb: [p.label],
-    href: `/${p.id}/${p.defaultLandingId}`,
+    href: `${prefix}/${p.id}/${p.defaultLandingId}`,
     keywords: p.label.toLowerCase(),
   };
 }

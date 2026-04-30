@@ -9,6 +9,7 @@ import { Text } from '@wallarm-org/design-system/Text';
 import { Kbd } from '@wallarm-org/design-system/Kbd';
 import { Search, ChevronRight } from '@wallarm-org/design-system/icons';
 import { resolveIcon } from '@/nav/manifest/icons';
+import { useVariant } from '@/nav/variant-context';
 import {
   buildSearchIndex,
   filterAndRank,
@@ -26,13 +27,14 @@ interface Section {
 
 export function GlobalSearch() {
   const router = useRouter();
+  const { slug: variantSlug } = useVariant();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [highlight, setHighlight] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const index = useMemo(() => buildSearchIndex(), []);
+  const index = useMemo(() => buildSearchIndex(variantSlug), [variantSlug]);
   const productRoots = useMemo(() => getProductRoots(index), [index]);
 
   const sections: Section[] = useMemo(() => {

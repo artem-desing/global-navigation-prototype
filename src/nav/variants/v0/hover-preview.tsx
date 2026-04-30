@@ -2,6 +2,7 @@
 
 import { Text } from '@wallarm-org/design-system/Text';
 import { getManifest } from '@/nav/manifest/registry';
+import { useVariant, withVariantPrefix } from '@/nav/variant-context';
 import { SidebarTree } from './sidebar-tree';
 
 interface HoverPreviewProps {
@@ -11,10 +12,12 @@ interface HoverPreviewProps {
 }
 
 export function HoverPreview({ productId, onMouseEnter, onMouseLeave }: HoverPreviewProps) {
+  const { slug: variantSlug } = useVariant();
   const manifest = getManifest(productId);
   if (!manifest) return null;
 
-  const hrefBuilder = (featureId: string) => `/${manifest.id}/${featureId}`;
+  const hrefBuilder = (featureId: string) =>
+    withVariantPrefix(variantSlug, `/${manifest.id}/${featureId}`);
 
   return (
     <aside

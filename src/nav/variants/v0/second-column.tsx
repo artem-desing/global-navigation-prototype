@@ -7,11 +7,13 @@ import { Text } from '@wallarm-org/design-system/Text';
 import { Heading } from '@wallarm-org/design-system/Heading';
 import { Separator } from '@wallarm-org/design-system/Separator';
 import { resolveShellContext } from '@/nav/url';
+import { useVariant } from '@/nav/variant-context';
 import { SidebarTree } from './sidebar-tree';
 
 export function SecondColumn() {
   const pathname = usePathname();
-  const ctx = resolveShellContext(pathname);
+  const { slug: variantSlug } = useVariant();
+  const ctx = resolveShellContext(pathname, { variantPrefix: `/v/${variantSlug}` });
 
   if (ctx.mode !== 'product') return null;
 

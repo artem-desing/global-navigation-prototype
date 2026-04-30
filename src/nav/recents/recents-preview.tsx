@@ -10,6 +10,7 @@ import {
 } from '@wallarm-org/design-system/DropdownMenu';
 import { Text } from '@wallarm-org/design-system/Text';
 import { resolveIcon } from '@/nav/manifest/icons';
+import { useVariant } from '@/nav/variant-context';
 import { useRecents } from './store';
 
 interface RecentsMenuItemsProps {
@@ -18,7 +19,8 @@ interface RecentsMenuItemsProps {
 
 export function RecentsMenuItems({ onItemSelect }: RecentsMenuItemsProps) {
   const router = useRouter();
-  const recents = useRecents();
+  const { slug: variantSlug } = useVariant();
+  const recents = useRecents(variantSlug);
 
   if (recents.length === 0) {
     return (

@@ -8,11 +8,13 @@ import { Popover } from '@wallarm-org/design-system/Popover';
 import { PopoverTrigger } from '@wallarm-org/design-system/Popover';
 import { PopoverContent } from '@wallarm-org/design-system/Popover';
 import { resolveShellContext, type BreadcrumbStep } from '@/nav/url';
+import { useVariant } from '@/nav/variant-context';
 import { dataPlanes } from '@/lib/mock-data/data-planes';
 
 export function Breadcrumb() {
   const pathname = usePathname();
-  const ctx = resolveShellContext(pathname);
+  const { slug: variantSlug } = useVariant();
+  const ctx = resolveShellContext(pathname, { variantPrefix: `/v/${variantSlug}` });
 
   if (ctx.mode !== 'product') return null;
   if (ctx.breadcrumb.length <= 1) return null;

@@ -22,6 +22,7 @@ import {
 } from '@/nav/manifest/registry';
 import { resolveIcon } from '@/nav/manifest/icons';
 import type { ProductManifest, PlatformUtilityManifest } from '@/nav/manifest/types';
+import { useVariant, variantHomePath, withVariantPrefix } from '@/nav/variant-context';
 import { HoverPreview } from './hover-preview';
 import { RecentsMenuItems } from '@/nav/recents/recents-preview';
 
@@ -31,9 +32,14 @@ const HOVER_HIDE_DELAY_MS = 150;
 
 export function Rail() {
   const pathname = usePathname();
+  const { slug: variantSlug } = useVariant();
   const products = getProductManifests();
   const utilities = getPlatformUtilityManifests();
-  const activeId = pathname === '/' ? 'home' : pathname.split('/')[1];
+  // Pathname under a variant is `/v/<slug>/<productId>/...`. The third segment
+  // (index 2) is the product/utility id; absent → we're on the variant home.
+  const segments = pathname.split('/').filter(Boolean);
+  const productSlot = segments[2];
+  const activeId = productSlot ?? 'home';
 
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -73,7 +79,7 @@ export function Rail() {
       >
         <div className="flex flex-col items-stretch gap-4 px-8" data-stack="products">
           <RailItem
-            href="/"
+            href={variantHomePath(variantSlug)}
             label="Home"
             shortLabel="Home"
             IconComponent={HomeIcon}
@@ -215,9 +221,10 @@ interface ProductRailItemProps {
 
 function ProductRailItem({ product, active, onHoverEnter, onHoverLeave }: ProductRailItemProps) {
   const IconComponent = resolveIcon(product.icon);
+  const { slug: variantSlug } = useVariant();
   return (
     <RailItem
-      href={`/${product.id}/${product.defaultLandingId}`}
+      href={withVariantPrefix(variantSlug, `/${product.id}/${product.defaultLandingId}`)}
       label={product.label}
       shortLabel={product.shortLabel ?? product.label}
       IconComponent={IconComponent}
@@ -252,6 +259,7 @@ function PlatformUtilityRailItem({
   onItemSelect,
 }: PlatformUtilityRailItemProps) {
   const IconComponent = resolveIcon(utility.icon);
+  const { slug: variantSlug } = useVariant();
   if (utility.externalUrl) {
     return (
       <ExternalRailItem
@@ -282,7 +290,7 @@ function PlatformUtilityRailItem({
   }
   return (
     <RailItem
-      href={`/${utility.id}/${utility.defaultLandingId}`}
+      href={withVariantPrefix(variantSlug, `/${utility.id}/${utility.defaultLandingId}`)}
       label={utility.label}
       shortLabel={utility.shortLabel ?? utility.label}
       IconComponent={IconComponent}
@@ -319,6 +327,7 @@ function UtilityDropdownRailItem({
   onItemSelect,
 }: UtilityDropdownRailItemProps) {
   const router = useRouter();
+  const { slug: variantSlug } = useVariant();
   const [hovered, setHovered] = useState(false);
   const featureItems = utility.sidebar.filter(
     (n): n is Extract<typeof n, { type: 'feature' }> => n.type === 'feature',
@@ -383,7 +392,7 @@ function UtilityDropdownRailItem({
               value={feature.id}
               onSelect={() => {
                 onItemSelect();
-                router.push(`/${utility.id}/${feature.id}`);
+                router.push(withVariantPrefix(variantSlug, `/${utility.id}/${feature.id}`));
               }}
             >
               {FeatureIcon ? (

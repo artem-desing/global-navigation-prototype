@@ -84,6 +84,21 @@ Wallarm's "AI Control Platform" launch is embargoed externally until 2026-06-04 
 
 Branches/MRs are the proposals. Each branch = one navigation idea. Keep them focused. The MR body is where the rationale lives.
 
+## Team & collaboration protocols
+
+This repo carries a multi-role team at `team/agents/*.md` (index: `team/TEAM.md`). Each role is a persona brief covering domain, methodology, deliverables, and what to push back on. Two ways to use them:
+
+- **Inline** — say "act as the IA Researcher and..." or read the persona file and adopt the voice
+- **Auto-routed** — `.claude/agents/*.md` shims expose each persona as a Claude Code subagent. The Task tool auto-routes based on description match (e.g. a label audit → microcopy-designer, a route-shape change → frontend-engineer-2, a new manifest entry → manifest-architect)
+
+When starting a new nav idea (typically a new branch), follow the **kickoff protocol** in `team/agents/project-manager.md`: IA research → PM frame → design trio (product / interaction / microcopy) → manifest + frontend → QA → adversarial review (only when comparing 2+ versions). Append decisions and dissent to `docs/decisions.md` using the format in `team/agents/project-manager.md`.
+
+The IA Researcher (Adversarial) is **parked** — invoke only when comparing 2+ nav idea branches, never on a single-branch v0.
+
+## Skills behavior in this repo
+
+The `frontend-design` skill auto-triggers on broad cues like "build a component" or "style this UI." Inside this prototype it is **creative direction within WADS constraints** — never a license to swap fonts, invent palettes, or build chrome from raw Tailwind. WADS rules in this file always win. The other design skills (`design-critique`, `ux-copy`, `accessibility-review`, `research-synthesis`) align with the project and need no override.
+
 ## Design lead's working space
 
 The design lead's living workspace for this project (status, stakeholders, recurring updates) is OUTSIDE this repo at:
