@@ -1,6 +1,9 @@
 import type { ComponentType, ReactNode } from 'react';
 import { Shell as V0Shell } from './v0/shell';
 import { Shell as V2Shell } from './v2/shell';
+import { Shell as V3Shell } from './v3/shell';
+import { Shell as V4Shell } from './v4/shell';
+import { Shell as V5Shell } from './v5/shell';
 
 export interface Variant {
   slug: string;
@@ -13,17 +16,38 @@ export interface Variant {
 const variants: Variant[] = [
   {
     slug: 'v0',
-    label: 'Manifest-driven shell',
+    label: 'Always-open sidebar',
     blurb:
-      'The baseline. Manifest-defined products, scope drilldowns, ⌘K palette, recents rail, AI assistant push panel.',
+      "The classic console layout. A wide left sidebar lists every product's sections at all times, and a second column shows the current product's tree. Nothing is hidden — everything is one click away.",
     Shell: V0Shell,
   },
   {
     slug: 'v2',
-    label: 'Icon rail with hover-expand',
+    label: 'Hover to expand',
     blurb:
-      'Same data, lighter chrome. Rail collapses to icons; hover or pin to reveal labels. Recent stays a one-click dropdown.',
+      'A thin icon strip by default — hover or pin to reveal the full sidebar with labels. Frees up screen real estate when you are focused on the page, with everything still one motion away.',
     Shell: V2Shell,
+  },
+  {
+    slug: 'v3',
+    label: 'Icons only, with tooltips',
+    blurb:
+      'Always a thin icon strip; labels appear as small tooltips on hover, never as a column. The most space-efficient option. Drilling into a section works the same as in “Hover to expand”.',
+    Shell: V3Shell,
+  },
+  {
+    slug: 'v4',
+    label: 'Pop-out menus, expand on demand',
+    blurb:
+      "Hover any product icon to see its sections in a floating menu — no fixed second column. Press ⌘B to swap the strip for one merged sidebar that lists every product's sections at once. Settings and drilled-into scopes still get a dedicated second column.",
+    Shell: V4Shell,
+  },
+  {
+    slug: 'v5',
+    label: 'Workbench with tabs',
+    blurb:
+      'A workbench layout: a thin icon column on the left, a resizable explorer with the full nav tree, and a main pane with tabs so you can keep several pages open and switch between them without losing your place.',
+    Shell: V5Shell,
   },
 ];
 

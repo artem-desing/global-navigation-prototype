@@ -266,8 +266,14 @@ export function Rail() {
         // Cancel any pending close so pin wins immediately.
         cancelHide();
       } else {
-        // Unpinning: drop hover/focus too unless they're still active.
-        // Mouse-still-over case will re-open via existing handlers.
+        // Unpinning: drop focus-driven expansion AND blur the pin button so a
+        // subsequent mouseleave collapses the rail. Without this, focus stays
+        // on the (just-clicked) pin button → focusOpen sticks at true → rail
+        // never collapses until the user clicks outside.
+        setFocusOpen(false);
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
       }
       return next;
     });

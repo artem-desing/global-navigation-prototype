@@ -33,22 +33,22 @@ export default function PickerPage() {
           </Text>
         </header>
 
-        <ul className="flex flex-col gap-12">
+        <ul className="flex flex-col gap-8">
           {variants.map((v) => (
             <li key={v.slug}>
               <Link href={variantHomePath(v.slug)} className="block">
                 <Card className="transition-colors hover:bg-[var(--color-bg-light-primary)]">
-                  <div className="flex items-start gap-16 p-20">
-                    <div className="flex flex-1 flex-col gap-6">
-                      <div className="flex items-baseline gap-12">
-                        <Text size="lg" weight="medium" color="primary">
+                  <div className="flex items-center gap-12 px-16">
+                    <div className="flex flex-1 flex-col gap-2">
+                      <div className="flex items-baseline gap-8">
+                        <Text size="md" weight="medium" color="primary">
                           {v.label}
                         </Text>
                         <Text size="xs" color="secondary">
                           /v/{v.slug}/
                         </Text>
                       </div>
-                      <Text size="sm" color="secondary">
+                      <Text size="xs" color="secondary">
                         {v.blurb}
                       </Text>
                     </div>

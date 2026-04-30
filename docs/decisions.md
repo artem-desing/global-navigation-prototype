@@ -65,3 +65,15 @@
 **Not locked:** This is the *starting* model for v0 to make flows testable, not a final pick. Alternative arrangements still welcome via PR — that's the whole point of the prototype.
 
 **Owner:** Artem
+
+## Decision: v5 direction — Workbench (split-pane with tabs)
+**Date**: 2026-04-30
+**Branch / MR**: main (single-branch session)
+**Decided by**: Principal PM
+**Context**: IA Researcher surfaced six structurally-different next-variant directions and recommended two: (A) Workbench / split-pane with tabs, (B) Scope-as-context with a top-of-page scope selector. v0–v4 have all explored the left-rail shape; we need a variant that challenges a deeper axis.
+**Options considered**:
+  1. Workbench / split-pane (A) — pros: changes the unit of navigation from page to tab, only direction on the table that does so; clear vendor prior art (Postman, VS Code); fits today's manifest with no schema change. Cons: AI push-panel collision on the right; risk of tab pollution; mental-model shift heavier for low-frequency users.
+  2. Scope-as-context (B) — pros: directly tests a scope-first mental model that vendor traction (Datadog, Honeycomb) suggests is real for SREs; would surface whether product-first is actually the wrong axis. Cons: requires a second manifest axis (scope as first-class), which is a real schema lift; the hypothesis is testable later by instrumenting v0 without building chrome for it now.
+**Decision**: Build Option A as v5. Tabs change the unit of navigation, which is the highest-information move available; manifest stays untouched; AI assistant docks to the bottom for this variant to resolve the right-pane collision.
+**Dissent**: The IA Researcher's framing implied B has higher strategic value because it challenges the product-first axis baked into every variant so far. Recorded: if v5 lands without surfacing comparison/cross-reference behavior in testing, B becomes the next bet, not a sixth left-rail variant.
+**Revisit if**: (a) v5 testing shows users don't open multiple tabs unprompted — workbench hypothesis fails, fall back to refining v0–v4; (b) teammates testing v5 spontaneously ask "can I switch the whole page to a different cluster/data plane?" — that's the scope-first signal and we promote B; (c) the bottom-docked AI panel proves unworkable in click-through — revisit AI placement before shipping more variants.

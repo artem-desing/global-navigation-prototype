@@ -11,6 +11,7 @@ import { DialogTitle } from '@wallarm-org/design-system/Dialog';
 import { DialogBody } from '@wallarm-org/design-system/Dialog';
 import { GlobalSearch } from '@/nav/search/global-search';
 import { Sparkles } from '@/nav/manifest/custom-icons';
+import { WallarmWordmark } from './wordmark';
 
 export interface TopBarProps {
   aiOpen: boolean;
@@ -38,11 +39,10 @@ export function TopBar({ aiOpen, onToggleAI }: TopBarProps) {
           href="/"
           aria-label="Switch prototype variant"
           title="Switch prototype variant"
-          className="rounded-md px-4 py-2 transition-colors hover:bg-[var(--color-bg-light-primary)]"
+          className="flex items-center rounded-md px-4 py-2 transition-colors hover:bg-[var(--color-bg-light-primary)]"
+          style={{ color: 'var(--color-text-primary)' }}
         >
-          <Text size="md" weight="bold" color="primary">
-            Wallarm
-          </Text>
+          <WallarmWordmark />
         </Link>
       </div>
 

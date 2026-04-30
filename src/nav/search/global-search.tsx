@@ -25,10 +25,29 @@ interface Section {
   items: SearchItem[];
 }
 
-export function GlobalSearch() {
+export interface GlobalSearchProps {
+  /** Controlled open state. If omitted, the component manages its own. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Hide the built-in search-input trigger button — caller renders its own. */
+  hideTrigger?: boolean;
+}
+
+export function GlobalSearch({
+  open: controlledOpen,
+  onOpenChange,
+  hideTrigger,
+}: GlobalSearchProps = {}) {
   const router = useRouter();
   const { slug: variantSlug } = useVariant();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen! : internalOpen;
+  const setOpen = (next: boolean | ((prev: boolean) => boolean)) => {
+    const resolved = typeof next === 'function' ? next(open) : next;
+    if (isControlled) onOpenChange?.(resolved);
+    else setInternalOpen(resolved);
+  };
   const [query, setQuery] = useState('');
   const [highlight, setHighlight] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -104,6 +123,7 @@ export function GlobalSearch() {
 
   return (
     <>
+      {hideTrigger ? null : (
       <button
         type="button"
         onClick={() => setOpen(true)}
@@ -120,6 +140,7 @@ export function GlobalSearch() {
         </Text>
         <Kbd size="small">⌘K</Kbd>
       </button>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen} width={640}>
         <DialogContent>
