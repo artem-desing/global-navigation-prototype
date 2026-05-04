@@ -9,9 +9,15 @@ interface HoverPreviewProps {
   productId: string;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  onFeatureSelect: () => void;
 }
 
-export function HoverPreview({ productId, onMouseEnter, onMouseLeave }: HoverPreviewProps) {
+export function HoverPreview({
+  productId,
+  onMouseEnter,
+  onMouseLeave,
+  onFeatureSelect,
+}: HoverPreviewProps) {
   const { slug: variantSlug } = useVariant();
   const manifest = getManifest(productId);
   if (!manifest) return null;
@@ -44,6 +50,7 @@ export function HoverPreview({ productId, onMouseEnter, onMouseLeave }: HoverPre
         nodes={manifest.sidebar}
         activeFeatureId={undefined}
         hrefBuilder={hrefBuilder}
+        onFeatureSelect={onFeatureSelect}
       />
     </aside>
   );

@@ -4,6 +4,7 @@ import { Shell as V2Shell } from './v2/shell';
 import { Shell as V3Shell } from './v3/shell';
 import { Shell as V4Shell } from './v4/shell';
 import { Shell as V5Shell } from './v5/shell';
+import { Shell as V6Shell } from './v6/shell';
 
 export interface Variant {
   slug: string;
@@ -20,6 +21,13 @@ const variants: Variant[] = [
     blurb:
       "The classic console layout. A wide left sidebar lists every product's sections at all times, and a second column shows the current product's tree. Nothing is hidden — everything is one click away.",
     Shell: V0Shell,
+  },
+  {
+    slug: 'v6',
+    label: 'User-controlled rail',
+    blurb:
+      'You decide how the first rail behaves: always expanded, icons-only with tooltips and keyboard shortcuts, or expand on hover. A small control snapped to the bottom of the rail switches modes; preference persists per browser.',
+    Shell: V6Shell,
   },
   {
     slug: 'v2',

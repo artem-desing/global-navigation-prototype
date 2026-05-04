@@ -410,7 +410,13 @@ function ActivityTooltip({ label, children }: { label: string; children: ReactNo
             zIndex: 60,
           }}
         >
-          <Text size="xs" weight="medium" color="inherit" lineHeight="tight">
+          <Text
+            size="xs"
+            weight="medium"
+            color="inherit"
+            lineHeight="tight"
+            style={{ whiteSpace: 'nowrap' }}
+          >
             {label}
           </Text>
         </span>

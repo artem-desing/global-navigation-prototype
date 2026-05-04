@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Home as HomeIcon, History as HistoryIcon } from '@wallarm-org/design-system/icons';
 import { Text } from '@wallarm-org/design-system/Text';
 import {
@@ -42,7 +42,22 @@ export function Rail() {
   const activeId = productSlot ?? 'home';
 
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [pendingNavSlot, setPendingNavSlot] = useState<string | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (pendingNavSlot === null) return;
+    if (productSlot === pendingNavSlot) {
+      setHoveredId(null);
+      setPendingNavSlot(null);
+      return;
+    }
+    const t = setTimeout(() => {
+      setHoveredId(null);
+      setPendingNavSlot(null);
+    }, 600);
+    return () => clearTimeout(t);
+  }, [pendingNavSlot, productSlot]);
 
   const showPreview = (id: string) => {
     if (hideTimerRef.current) {
@@ -145,6 +160,10 @@ export function Rail() {
             productId={hoveredId}
             onMouseEnter={cancelHide}
             onMouseLeave={scheduleHide}
+            onFeatureSelect={() => {
+              cancelHide();
+              setPendingNavSlot(hoveredId);
+            }}
           />
         );
       })()}

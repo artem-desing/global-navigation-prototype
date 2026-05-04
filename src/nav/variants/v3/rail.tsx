@@ -206,7 +206,13 @@ function RailTooltip({ label, children }: { label: string; children: React.React
             zIndex: 60,
           }}
         >
-          <Text size="xs" weight="medium" color="inherit" lineHeight="tight">
+          <Text
+            size="xs"
+            weight="medium"
+            color="inherit"
+            lineHeight="tight"
+            style={{ whiteSpace: 'nowrap' }}
+          >
             {label}
           </Text>
         </span>

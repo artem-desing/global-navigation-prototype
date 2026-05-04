@@ -11,9 +11,15 @@ export interface SidebarTreeProps {
   nodes: SidebarNode[];
   activeFeatureId: string | undefined;
   hrefBuilder: (featureId: string) => string;
+  onFeatureSelect?: () => void;
 }
 
-export function SidebarTree({ nodes, activeFeatureId, hrefBuilder }: SidebarTreeProps) {
+export function SidebarTree({
+  nodes,
+  activeFeatureId,
+  hrefBuilder,
+  onFeatureSelect,
+}: SidebarTreeProps) {
   return (
     <ul className="flex flex-col gap-2 px-8">
       {nodes.map((node) => (
@@ -22,6 +28,7 @@ export function SidebarTree({ nodes, activeFeatureId, hrefBuilder }: SidebarTree
           node={node}
           activeFeatureId={activeFeatureId}
           hrefBuilder={hrefBuilder}
+          onFeatureSelect={onFeatureSelect}
         />
       ))}
     </ul>
@@ -32,13 +39,33 @@ interface NodeRendererProps {
   node: SidebarNode;
   activeFeatureId: string | undefined;
   hrefBuilder: (featureId: string) => string;
+  onFeatureSelect?: () => void;
 }
 
-function SidebarNodeRenderer({ node, activeFeatureId, hrefBuilder }: NodeRendererProps) {
+function SidebarNodeRenderer({
+  node,
+  activeFeatureId,
+  hrefBuilder,
+  onFeatureSelect,
+}: NodeRendererProps) {
   if (node.type === 'category') return <CategoryItem node={node} />;
   if (node.type === 'group')
-    return <GroupItem node={node} activeFeatureId={activeFeatureId} hrefBuilder={hrefBuilder} />;
-  return <FeatureItem node={node} active={node.id === activeFeatureId} hrefBuilder={hrefBuilder} />;
+    return (
+      <GroupItem
+        node={node}
+        activeFeatureId={activeFeatureId}
+        hrefBuilder={hrefBuilder}
+        onFeatureSelect={onFeatureSelect}
+      />
+    );
+  return (
+    <FeatureItem
+      node={node}
+      active={node.id === activeFeatureId}
+      hrefBuilder={hrefBuilder}
+      onFeatureSelect={onFeatureSelect}
+    />
+  );
 }
 
 function CategoryItem({ node }: { node: CategoryNode }) {
@@ -55,10 +82,12 @@ function GroupItem({
   node,
   activeFeatureId,
   hrefBuilder,
+  onFeatureSelect,
 }: {
   node: GroupNode;
   activeFeatureId: string | undefined;
   hrefBuilder: (featureId: string) => string;
+  onFeatureSelect?: () => void;
 }) {
   const [open, setOpen] = useState(!node.collapsed);
   const [hovered, setHovered] = useState(false);
@@ -93,6 +122,7 @@ function GroupItem({
               node={child}
               activeFeatureId={activeFeatureId}
               hrefBuilder={hrefBuilder}
+              onFeatureSelect={onFeatureSelect}
             />
           ))}
         </ul>
@@ -105,10 +135,12 @@ function FeatureItem({
   node,
   active,
   hrefBuilder,
+  onFeatureSelect,
 }: {
   node: FeatureNode;
   active: boolean;
   hrefBuilder: (featureId: string) => string;
+  onFeatureSelect?: () => void;
 }) {
   const flags = useFlags();
   const locked = isFeatureLocked(node, flags);
@@ -136,6 +168,7 @@ function FeatureItem({
       <Link
         href={hrefBuilder(node.id)}
         aria-current={active ? 'page' : undefined}
+        onClick={onFeatureSelect}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         className="flex items-center gap-8 rounded-md px-8 py-6 transition-colors"
