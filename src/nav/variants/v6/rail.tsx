@@ -13,9 +13,9 @@ import {
 import {
   Home as HomeIcon,
   History as HistoryIcon,
-  LayoutPanelLeft as LayoutPanelLeftIcon,
   Check as CheckIcon,
 } from '@wallarm-org/design-system/icons';
+import { PanelLeftDashed as PanelLeftDashedIcon } from '@/nav/manifest/custom-icons';
 import { Text } from '@wallarm-org/design-system/Text';
 import {
   DropdownMenu,
@@ -35,6 +35,7 @@ import { resolveIcon } from '@/nav/manifest/icons';
 import type { ProductManifest, PlatformUtilityManifest } from '@/nav/manifest/types';
 import { useVariant, variantHomePath, withVariantPrefix } from '@/nav/variant-context';
 import { RecentsMenuItems } from '@/nav/recents/recents-preview';
+import { SECOND_COLUMN_FOCUS_FLAG } from '@/nav/variants/v0/second-column';
 import { Z_RAIL_OVERLAY } from '@/nav/z-index';
 
 type RailMode = 'expanded' | 'collapsed' | 'hover';
@@ -64,20 +65,25 @@ const PRODUCT_SHORTCUTS: Record<string, string> = {
   testing: 'T',
 };
 
+// Utility shortcuts: H = home, R = open Recent menu, S = settings.
+const HOME_SHORTCUT = 'H';
+const RECENT_SHORTCUT = 'R';
+const SETTINGS_SHORTCUT = 'S';
+
 type IconComponent = React.ComponentType<{
   size?: 'sm' | 'md';
   'aria-hidden'?: boolean;
 }>;
 
 function readMode(slug: string): RailMode {
-  if (typeof window === 'undefined') return 'hover';
+  if (typeof window === 'undefined') return 'collapsed';
   try {
     const raw = window.localStorage.getItem(`${MODE_STORAGE_PREFIX}${slug}${MODE_STORAGE_SUFFIX}`);
     if (raw === 'expanded' || raw === 'collapsed' || raw === 'hover') return raw;
   } catch {
     /* fall through */
   }
-  return 'hover';
+  return 'collapsed';
 }
 
 function writeMode(slug: string, value: RailMode): void {
@@ -252,6 +258,49 @@ export function Rail() {
         cancelLeader();
         return;
       }
+      // Utility shortcuts first.
+      if (key === HOME_SHORTCUT.toLowerCase()) {
+        cancelLeader();
+        e.preventDefault();
+        router.push(variantHomePath(variantSlug));
+        return;
+      }
+      if (key === RECENT_SHORTCUT.toLowerCase()) {
+        cancelLeader();
+        e.preventDefault();
+        setRecentOpen(true);
+        // After the portal mounts, focus Ark's Menu.Content node and dispatch
+        // ArrowDown there. Ark binds its keyboard handler to that element and
+        // will set data-highlighted on the first item — the visible "selected
+        // row" cue. Simply focusing a menuitem doesn't engage Ark's highlight.
+        setTimeout(() => {
+          const menuContent = document.querySelector<HTMLElement>(
+            '[data-scope="menu"][data-part="content"]',
+          );
+          if (!menuContent) return;
+          menuContent.focus();
+          menuContent.dispatchEvent(
+            new KeyboardEvent('keydown', {
+              key: 'ArrowDown',
+              code: 'ArrowDown',
+              bubbles: true,
+              cancelable: true,
+            }),
+          );
+        }, 80);
+        return;
+      }
+      if (key === SETTINGS_SHORTCUT.toLowerCase()) {
+        cancelLeader();
+        const settings = utilities.find((u) => u.id === 'settings');
+        if (!settings) return;
+        e.preventDefault();
+        sessionStorage.setItem(SECOND_COLUMN_FOCUS_FLAG, '1');
+        router.push(
+          withVariantPrefix(variantSlug, `/${settings.id}/${settings.defaultLandingId}`),
+        );
+        return;
+      }
       const productId = Object.entries(PRODUCT_SHORTCUTS).find(
         ([, letter]) => letter.toLowerCase() === key,
       )?.[0];
@@ -260,16 +309,19 @@ export function Rail() {
       const product = products.find((p) => p.id === productId);
       if (!product) return;
       e.preventDefault();
+      sessionStorage.setItem(SECOND_COLUMN_FOCUS_FLAG, '1');
       router.push(
         withVariantPrefix(variantSlug, `/${product.id}/${product.defaultLandingId}`),
       );
     };
-    window.addEventListener('keydown', onKeyDown);
+    // Capture phase so the leader key fires before Ark UI's portal listeners
+    // (e.g. while a Menu is open, Ark would otherwise consume the keydown).
+    window.addEventListener('keydown', onKeyDown, true);
     return () => {
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keydown', onKeyDown, true);
       cancelLeader();
     };
-  }, [products, router, variantSlug]);
+  }, [products, utilities, router, variantSlug]);
 
   const focusableCount =
     1 /* home */ + 1 /* recent */ + products.length + utilities.length + 1 /* sidebar control */;
@@ -387,6 +439,7 @@ export function Rail() {
             expanded={expanded}
             tooltipsEnabled={tooltipsEnabled}
             prefersReducedMotion={prefersReducedMotion}
+            shortcut={HOME_SHORTCUT}
             onNavigate={collapseRail}
           />
           <RecentRailItem
@@ -397,6 +450,7 @@ export function Rail() {
             expanded={expanded}
             tooltipsEnabled={tooltipsEnabled}
             prefersReducedMotion={prefersReducedMotion}
+            shortcut={RECENT_SHORTCUT}
             onNavigate={collapseRail}
           />
           <div
@@ -433,6 +487,7 @@ export function Rail() {
               expanded={expanded}
               tooltipsEnabled={tooltipsEnabled}
               prefersReducedMotion={prefersReducedMotion}
+              shortcut={u.id === 'settings' ? SETTINGS_SHORTCUT : undefined}
               onMenuOpenChange={(open) => {
                 if (open) cancelHide();
               }}
@@ -578,6 +633,7 @@ function ProductRailItem({
 interface PlatformUtilityRailItemProps extends CommonItemProps {
   utility: PlatformUtilityManifest;
   active: boolean;
+  shortcut?: string;
   onMenuOpenChange: (open: boolean) => void;
 }
 
@@ -588,6 +644,7 @@ function PlatformUtilityRailItem({
   expanded,
   tooltipsEnabled,
   prefersReducedMotion,
+  shortcut,
   onMenuOpenChange,
   onNavigate,
 }: PlatformUtilityRailItemProps) {
@@ -632,6 +689,7 @@ function PlatformUtilityRailItem({
       expanded={expanded}
       tooltipsEnabled={tooltipsEnabled}
       prefersReducedMotion={prefersReducedMotion}
+      shortcut={shortcut}
       onNavigate={onNavigate}
     />
   );
@@ -839,6 +897,7 @@ interface RecentRailItemProps extends CommonItemProps {
   IconComponent: IconComponent;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  shortcut?: string;
 }
 
 function RecentRailItem({
@@ -849,6 +908,7 @@ function RecentRailItem({
   expanded,
   tooltipsEnabled,
   prefersReducedMotion,
+  shortcut,
   onNavigate,
 }: RecentRailItemProps) {
   const [hovered, setHovered] = useState(false);
@@ -899,13 +959,13 @@ function RecentRailItem({
       positioning={{ placement: 'right-start', gutter: 8 }}
     >
       {tooltipsEnabled ? (
-        <RailTooltip label="Recent">
+        <RailTooltip label="Open Recent" shortcut={shortcut}>
           <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
         </RailTooltip>
       ) : (
         <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
       )}
-      <DropdownMenuContent>
+      <DropdownMenuContent className="w-[200px]" style={{ width: 200 }}>
         <RecentsMenuItems
           onItemSelect={() => {
             onOpenChange(false);
@@ -943,8 +1003,8 @@ function SidebarControlItem({
     <button
       ref={assignRef as (node: HTMLButtonElement | null) => void}
       type="button"
-      aria-label="Sidebar control"
-      title={tooltipsEnabled ? undefined : 'Sidebar control'}
+      aria-label="Sidebar mode"
+      title={tooltipsEnabled ? undefined : 'Sidebar mode'}
       onMouseEnter={(e) => {
         // Carve-out: don't expand the rail just because the control is hovered.
         e.stopPropagation();
@@ -962,14 +1022,14 @@ function SidebarControlItem({
       }}
     >
       {tooltipsEnabled ? (
-        <LayoutPanelLeftIcon size="md" aria-hidden />
+        <PanelLeftDashedIcon size="md" aria-hidden />
       ) : (
         <>
           <span
             className="flex shrink-0 items-center justify-center"
             style={{ width: ICON_COL_WIDTH, marginLeft: ICON_COL_LEFT }}
           >
-            <LayoutPanelLeftIcon size="md" aria-hidden />
+            <PanelLeftDashedIcon size="md" aria-hidden />
           </span>
           <RailLabel expanded={expanded} prefersReducedMotion={prefersReducedMotion}>
             Sidebar
@@ -986,23 +1046,18 @@ function SidebarControlItem({
       positioning={{ placement: 'right-end', gutter: 8 }}
     >
       {tooltipsEnabled ? (
-        <RailTooltip label="Sidebar control">
+        <RailTooltip label="Sidebar mode">
           <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
         </RailTooltip>
       ) : (
         <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
       )}
-      <DropdownMenuContent>
+      <DropdownMenuContent className="w-[200px]" style={{ width: 200 }}>
         <DropdownMenuLabel>
           <Text size="xs" weight="medium" color="secondary">
-            Sidebar settings
+            Sidebar mode
           </Text>
         </DropdownMenuLabel>
-        <ModeOption
-          label="Expanded"
-          selected={mode === 'expanded'}
-          onSelect={() => onSelect('expanded')}
-        />
         <ModeOption
           label="Collapsed"
           selected={mode === 'collapsed'}
@@ -1012,6 +1067,11 @@ function SidebarControlItem({
           label="Expand on hover"
           selected={mode === 'hover'}
           onSelect={() => onSelect('hover')}
+        />
+        <ModeOption
+          label="Expanded"
+          selected={mode === 'expanded'}
+          onSelect={() => onSelect('expanded')}
         />
       </DropdownMenuContent>
     </DropdownMenu>
@@ -1037,6 +1097,7 @@ function ModeOption({
       <DropdownMenuItemContent>
         <DropdownMenuItemText>{label}</DropdownMenuItemText>
       </DropdownMenuItemContent>
+      <span className="flex-1" aria-hidden />
       {selected ? (
         <DropdownMenuItemIcon>
           <CheckIcon size="sm" aria-hidden />

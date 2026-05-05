@@ -5,11 +5,13 @@ import { Heading } from '@wallarm-org/design-system/Heading';
 import { Text } from '@wallarm-org/design-system/Text';
 import { Card } from '@wallarm-org/design-system/Card';
 import { ChevronRight } from '@wallarm-org/design-system/icons';
-import { getAllVariants } from '@/nav/variants/registry';
+import { getAllVariants, type Variant } from '@/nav/variants/registry';
 import { variantHomePath } from '@/nav/variant-context';
 
 export default function PickerPage() {
   const variants = getAllVariants();
+  const preferred = variants.filter((v) => v.preferred);
+  const others = variants.filter((v) => !v.preferred);
 
   return (
     <main
@@ -33,36 +35,34 @@ export default function PickerPage() {
           </Text>
         </header>
 
-        <ul className="flex flex-col gap-8">
-          {variants.map((v) => (
-            <li key={v.slug}>
-              <Link href={variantHomePath(v.slug)} className="block">
-                <Card className="transition-colors hover:bg-[var(--color-bg-light-primary)]">
-                  <div className="flex items-center gap-12 px-16">
-                    <div className="flex flex-1 flex-col gap-2">
-                      <div className="flex items-baseline gap-8">
-                        <Text size="md" weight="medium" color="primary">
-                          {v.label}
-                        </Text>
-                        <Text size="xs" color="secondary">
-                          /v/{v.slug}/
-                        </Text>
-                      </div>
-                      <Text size="xs" color="secondary">
-                        {v.blurb}
-                      </Text>
-                    </div>
-                    <ChevronRight
-                      size="sm"
-                      aria-hidden
-                      style={{ color: 'var(--color-icon-secondary)' }}
-                    />
-                  </div>
-                </Card>
-              </Link>
-            </li>
+        <ul className="grid grid-cols-2 gap-8">
+          {preferred.map((v) => (
+            <VariantCard key={v.slug} variant={v} />
           ))}
         </ul>
+
+        {others.length > 0 ? (
+          <>
+            <div
+              role="separator"
+              aria-orientation="horizontal"
+              className="h-[1px] w-full"
+              style={{ backgroundColor: 'var(--color-border-primary-light)' }}
+            />
+            <div className="flex flex-col gap-16">
+              <span className="uppercase tracking-wide">
+                <Text size="xs" weight="medium" color="secondary">
+                  Other variants
+                </Text>
+              </span>
+              <ul className="flex flex-col gap-8">
+                {others.map((v) => (
+                  <VariantCard key={v.slug} variant={v} />
+                ))}
+              </ul>
+            </div>
+          </>
+        ) : null}
 
         <footer className="flex flex-col gap-4 pt-16">
           <Text size="xs" color="secondary">
@@ -72,5 +72,36 @@ export default function PickerPage() {
         </footer>
       </div>
     </main>
+  );
+}
+
+function VariantCard({ variant }: { variant: Variant }) {
+  return (
+    <li className="h-full">
+      <Link href={variantHomePath(variant.slug)} className="block h-full">
+        <Card className="h-full transition-colors hover:bg-[var(--color-bg-light-primary)]">
+          <div className="flex h-full items-center gap-12 px-16">
+            <div className="flex flex-1 flex-col gap-2">
+              <div className="flex items-baseline gap-8">
+                <Text size="md" weight="medium" color="primary">
+                  {variant.label}
+                </Text>
+                <Text size="xs" color="secondary">
+                  /v/{variant.slug}/
+                </Text>
+              </div>
+              <Text size="xs" color="secondary">
+                {variant.blurb}
+              </Text>
+            </div>
+            <ChevronRight
+              size="sm"
+              aria-hidden
+              style={{ color: 'var(--color-icon-secondary)' }}
+            />
+          </div>
+        </Card>
+      </Link>
+    </li>
   );
 }

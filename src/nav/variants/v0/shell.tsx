@@ -4,7 +4,6 @@ import { useState, type ReactNode } from 'react';
 import { TopBar } from './top-bar';
 import { Rail } from './rail';
 import { SecondColumn } from './second-column';
-import { Breadcrumb } from './breadcrumb';
 import { FlagPanel } from '@/nav/shell/flag-panel';
 import { AIAssistantPanel } from '@/nav/shell/ai-assistant-panel';
 import { RecentsTracker } from '@/nav/recents/recents-tracker';
@@ -24,7 +23,6 @@ export function Shell({ children }: { children: ReactNode }) {
             className="flex-1 overflow-auto"
             style={{ backgroundColor: 'var(--color-bg-page-bg)' }}
           >
-            <Breadcrumb />
             {children}
           </main>
         </div>

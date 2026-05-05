@@ -12,6 +12,11 @@ export interface Variant {
   blurb: string;
   /** Renders the variant's chrome around `children`. */
   Shell: ComponentType<{ children: ReactNode }>;
+  /**
+   * Surfaces this variant in the "Preferred" group on the picker. Other
+   * variants stay listed below as alternates for comparison.
+   */
+  preferred?: boolean;
 }
 
 const variants: Variant[] = [
@@ -19,15 +24,17 @@ const variants: Variant[] = [
     slug: 'v0',
     label: 'Always-open sidebar',
     blurb:
-      "The classic console layout. A wide left sidebar lists every product's sections at all times, and a second column shows the current product's tree. Nothing is hidden — everything is one click away.",
+      "Two columns, always visible. Every product on the left rail; the current product's tree to the right.",
     Shell: V0Shell,
+    preferred: true,
   },
   {
     slug: 'v6',
     label: 'User-controlled rail',
     blurb:
-      'You decide how the first rail behaves: always expanded, icons-only with tooltips and keyboard shortcuts, or expand on hover. A small control snapped to the bottom of the rail switches modes; preference persists per browser.',
+      'Choose how the rail behaves — expanded, collapsed, or expand on hover. Preference sticks per browser.',
     Shell: V6Shell,
+    preferred: true,
   },
   {
     slug: 'v2',

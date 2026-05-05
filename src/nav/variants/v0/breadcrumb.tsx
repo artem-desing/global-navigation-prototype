@@ -11,7 +11,15 @@ import { resolveShellContext, type BreadcrumbStep } from '@/nav/url';
 import { useVariant } from '@/nav/variant-context';
 import { dataPlanes } from '@/lib/mock-data/data-planes';
 
-export function Breadcrumb() {
+export interface BreadcrumbProps {
+  /**
+   * When set, drop the page-level padding (`px-32 pt-16`) so the breadcrumb
+   * fits inline in chrome like the top bar. v4 still uses the padded default.
+   */
+  inline?: boolean;
+}
+
+export function Breadcrumb({ inline = false }: BreadcrumbProps = {}) {
   const pathname = usePathname();
   const { slug: variantSlug } = useVariant();
   const ctx = resolveShellContext(pathname, { variantPrefix: `/v/${variantSlug}` });
@@ -20,15 +28,32 @@ export function Breadcrumb() {
   if (ctx.breadcrumb.length <= 1) return null;
 
   return (
-    <nav aria-label="Breadcrumb" className="flex items-center gap-6 px-32 pt-16">
-      {ctx.breadcrumb.map((step, idx) => (
-        <BreadcrumbStepRenderer
-          key={`${step.kind}-${idx}`}
-          step={step}
-          showSeparator={idx > 0}
+    <>
+      {inline ? (
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          className="h-20 w-[1px] shrink-0"
+          style={{ backgroundColor: 'var(--color-border-primary-light)' }}
         />
-      ))}
-    </nav>
+      ) : null}
+      <nav
+        aria-label="Breadcrumb"
+        className={
+          inline
+            ? 'flex min-w-0 items-center gap-6'
+            : 'flex items-center gap-6 px-32 pt-16'
+        }
+      >
+        {ctx.breadcrumb.map((step, idx) => (
+          <BreadcrumbStepRenderer
+            key={`${step.kind}-${idx}`}
+            step={step}
+            showSeparator={idx > 0}
+          />
+        ))}
+      </nav>
+    </>
   );
 }
 

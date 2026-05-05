@@ -12,6 +12,7 @@ import { DialogBody } from '@wallarm-org/design-system/Dialog';
 import { GlobalSearch } from '@/nav/search/global-search';
 import { Sparkles } from '@/nav/manifest/custom-icons';
 import { WallarmWordmark } from './wordmark';
+import { Breadcrumb } from './breadcrumb';
 
 export interface TopBarProps {
   aiOpen: boolean;
@@ -29,7 +30,7 @@ export function TopBar({ aiOpen, onToggleAI }: TopBarProps) {
         borderColor: 'var(--color-border-primary-light)',
       }}
     >
-      <div className="flex items-center gap-8">
+      <div className="flex flex-1 min-w-0 items-center gap-12">
         {/*
          * Wordmark = escape hatch to the variant picker. Hidden door is
          * deliberate for the prototype phase; revisit before any real-product
@@ -39,18 +40,18 @@ export function TopBar({ aiOpen, onToggleAI }: TopBarProps) {
           href="/"
           aria-label="Switch prototype variant"
           title="Switch prototype variant"
-          className="flex items-center rounded-md px-4 py-2 transition-colors hover:bg-[var(--color-bg-light-primary)]"
+          className="flex shrink-0 items-center rounded-md px-4 py-2 transition-colors hover:bg-[var(--color-bg-light-primary)]"
           style={{ color: 'var(--color-text-primary)' }}
         >
           <WallarmWordmark />
         </Link>
+        <Breadcrumb inline />
       </div>
 
-      <div className="flex flex-1 max-w-md items-center justify-center">
-        <GlobalSearch />
-      </div>
-
-      <div className="flex items-center gap-12">
+      <div className="flex shrink-0 items-center gap-12">
+        <div className="w-[240px]">
+          <GlobalSearch />
+        </div>
         <button
           type="button"
           onClick={() => setTenantDialogOpen(true)}

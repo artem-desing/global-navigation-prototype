@@ -13,7 +13,7 @@ export interface RecentEntry {
 }
 
 const RECENTS_EVENT_PREFIX = 'nav-recents-changed';
-const MAX_RECENTS = 5;
+const MAX_RECENTS = 10;
 
 /** Variant-namespaced storage key — switching variants doesn't pollute recents. */
 function storageKey(variantSlug: string): string {

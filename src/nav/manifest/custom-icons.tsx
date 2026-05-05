@@ -103,3 +103,24 @@ export function Sun({ size, className, ...rest }: IconProps) {
   );
 }
 Sun.displayName = 'SunIcon';
+
+export function PanelLeftDashed({ size, className, ...rest }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+      focusable={false}
+      className={[sizeClass(size), className].filter(Boolean).join(' ')}
+      {...STROKE_PROPS}
+      {...rest}
+    >
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d="M9 14v1" />
+      <path d="M9 19v2" />
+      <path d="M9 3v2" />
+      <path d="M9 9v1" />
+    </svg>
+  );
+}
+PanelLeftDashed.displayName = 'PanelLeftDashedIcon';
