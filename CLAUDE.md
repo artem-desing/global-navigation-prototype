@@ -13,10 +13,12 @@ Full project context is in `docs/`:
 - `docs/charter.md` — why this exists, scope, success criteria, ownership
 - `docs/brief.md` — one-pager for sharing
 - `docs/current-ia.md` — baseline of today's Wallarm Console nav (the redesign starts here)
+- `docs/nav-principles.md` — the three principles every nav proposal is judged against
 - `docs/decisions.md` — append-only decisions log
 - `docs/open-items.md` — open design questions and blockers
+- `docs/to-do.md` — living backlog of work items, grouped by core nav vs. auxiliary surfaces
 
-Read `docs/charter.md` and `docs/current-ia.md` first when starting a session — they carry the load-bearing context.
+Read `docs/charter.md`, `docs/nav-principles.md`, and `docs/current-ia.md` first when starting a session — they carry the load-bearing context.
 
 ## Stack
 
