@@ -5,6 +5,7 @@ import { Shell as V3Shell } from './v3/shell';
 import { Shell as V4Shell } from './v4/shell';
 import { Shell as V5Shell } from './v5/shell';
 import { Shell as V6Shell } from './v6/shell';
+import { Shell as V7Shell } from './v7/shell';
 
 export interface Variant {
   slug: string;
@@ -13,13 +14,28 @@ export interface Variant {
   /** Renders the variant's chrome around `children`. */
   Shell: ComponentType<{ children: ReactNode }>;
   /**
-   * Surfaces this variant in the "Preferred" group on the picker. Other
-   * variants stay listed below as alternates for comparison.
+   * Surfaces this variant in the top group on the picker. Other variants
+   * stay listed below as alternates for comparison.
    */
   preferred?: boolean;
+  /**
+   * Optional small badge rendered inside the card (e.g. "Preferred").
+   * Independent of `preferred` — used to highlight a single recommended
+   * card visually.
+   */
+  tag?: string;
 }
 
 const variants: Variant[] = [
+  {
+    slug: 'v6',
+    label: 'User-controlled rail',
+    blurb:
+      'Choose how the rail behaves — expanded, collapsed, or expand on hover. Preference sticks per browser.',
+    Shell: V6Shell,
+    preferred: true,
+    tag: 'Preferred',
+  },
   {
     slug: 'v0',
     label: 'Always-open sidebar',
@@ -29,12 +45,11 @@ const variants: Variant[] = [
     preferred: true,
   },
   {
-    slug: 'v6',
-    label: 'User-controlled rail',
+    slug: 'v7',
+    label: 'v0/v6 combination → wide-labels toggle',
     blurb:
-      'Choose how the rail behaves — expanded, collapsed, or expand on hover. Preference sticks per browser.',
-    Shell: V6Shell,
-    preferred: true,
+      "Same baseline as v0 — every product on the rail, the current product's tree to the right. One ⌘B toggle widens the rail with persistent labels next to icons. No mode menu, no hover-overlay. Synthesis verdict from the v0-vs-v6 stress test, made clickable.",
+    Shell: V7Shell,
   },
   {
     slug: 'v2',

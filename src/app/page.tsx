@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Heading } from '@wallarm-org/design-system/Heading';
 import { Text } from '@wallarm-org/design-system/Text';
 import { Card } from '@wallarm-org/design-system/Card';
+import { Badge } from '@wallarm-org/design-system/Badge';
 import { ChevronRight } from '@wallarm-org/design-system/icons';
 import { getAllVariants, type Variant } from '@/nav/variants/registry';
 import { variantHomePath } from '@/nav/variant-context';
@@ -89,6 +90,11 @@ function VariantCard({ variant }: { variant: Variant }) {
                 <Text size="xs" color="secondary">
                   /v/{variant.slug}/
                 </Text>
+                {variant.tag ? (
+                  <Badge type="secondary" color="w-orange">
+                    {variant.tag}
+                  </Badge>
+                ) : null}
               </div>
               <Text size="xs" color="secondary">
                 {variant.blurb}

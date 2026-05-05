@@ -17,6 +17,7 @@ to the picker (deliberate hidden door for the prototype phase).
 | v3 | Icons only, with tooltips | Permanent 64px icon strip; labels appear as tooltips on hover (no expanding column) | `src/nav/variants/v3/` |
 | v4 | Pop-out menus, expand on demand | Apollo-style hover menus on each product icon; ⌘B toggles to a Cloudflare-style merged sidebar; Settings + drilled scopes get a v0-style second column | `src/nav/variants/v4/` |
 | v5 | Workbench with tabs | IDE-style: 48px activity bar + 264px explorer (full manifest tree) + tabbed main pane + bottom-docked AI assistant; tab state persisted | `src/nav/variants/v5/` |
+| v7 | v0 with a wide-labels toggle | v0 chrome, but products navigate on click — no hover flyout. ⌘B toggle swaps the rail between 96px stacked icon+label and 192px horizontal icon+label (harvested from v6 `expanded`). Persisted per browser. Recent and User open as click dropdowns. | `src/nav/variants/v7/` |
 
 ---
 
@@ -187,6 +188,69 @@ significantly more complex). Accept it for the prototype.
 - "Open elsewhere" indicator dot on a leaf already open in another tab.
 - Tab strip overflow menu (currently scrolls horizontally).
 - Real AI panel internals (placeholder content for now).
+
+---
+
+## v7 — v0 with a wide-labels toggle
+
+**Slug:** `v7`. **Origin:** the synthesis verdict from the v0-vs-v6 stress
+test (`docs/proposals/v0-vs-v6/VERDICT.md`), made clickable.
+
+The 7-lane test concluded that v6 was the superset of v0, not a competing
+variant — same shape as the 2026-04-30 v2-is-v0's-collapsed-mode reframe.
+The recommended ship list was: v0 chrome + a single ⌘B toggle that widens
+the rail with persistent labels. v7 builds exactly that.
+
+**Surfaces** (in `src/nav/variants/v7/`):
+
+- `shell.tsx` — copies v0's shell verbatim, swapping in v7's rail. Reuses
+  v0's `TopBar`, `SecondColumn`, breadcrumb (in top bar), and the shared
+  `AIAssistantPanel` / `FlagPanel`.
+- `rail.tsx` — v0's rail re-thought, NOT a fork:
+  - `wide` boolean state, persisted at `nav:v:v7:wide` (default `false` =
+    narrow, matching v0).
+  - ⌘B chord toggles wide. Same pattern v4 uses for its merged-sidebar
+    toggle.
+  - Per-mode item layout swap. Narrow: stacked icon-above-label (v0 layout).
+    Wide: horizontal icon column + label (v6 expanded layout). Same
+    `ICON_COL_WIDTH = 28`, `ICON_COL_LEFT = 10` constants as v6.
+  - Width transition at 180ms, gated on `prefers-reduced-motion`.
+  - **No HoverPreview.** Products navigate on click, full stop. The user
+    sees a product's tree by entering it — the SecondColumn renders the
+    tree on the right once the URL settles.
+- `WideToggleItem` — single button at the bottom of the rail (under a
+  separator, below utilities). Tooltip shows `⌘ B`. Aria-pressed reflects
+  state. Deliberately not a 3-way menu — the synthesis explicitly killed
+  the `collapsed` and `hover` modes.
+
+**Differences from v0:**
+
+- **No hover flyout for products.** v0's `HoverPreview` cross-product peek
+  is gone (Artem 2026-05-05). Click is the only interaction.
+- **Recent and User dropdowns open on click**, not hover. Standard
+  DropdownMenu trigger semantics; no shared hover state machine.
+- **Keyboard ArrowUp/Down roving** across rail items via `itemRefs`,
+  harvested from `v6/rail.tsx:330`. One Tab stop into the rail, then
+  arrows cycle.
+- **No `pendingNavSlot` defer-close, no hover timers, no `hoveredId`
+  cross-component state.** v7 carries less state surface than v0.
+
+**What v7 deliberately does NOT do:**
+
+- No three-mode menu (the synthesis adopted the IA / Adversarial /
+  Competitive / PM lanes' verdict that the menu itself is the violation).
+- No hover-overlay rail. The `hover` mode of v6 was killed in synthesis on
+  vendor-precedent grounds.
+- No `collapsed` icon-only resting state. v3 wearing different clothes.
+- No avatar `bg-light-primary` regression. v7 inherits v0's
+  `UtilityDropdownRailItem` avatar treatment, which sidesteps the
+  surface-stacking gotcha v6 reintroduced.
+
+**Trade-off.** Wide mode reflows the workspace (the rail isn't
+overlay-positioned). The synthesis accepts this on the grounds that wide
+is opt-in — the user clicked to commit. If a future iteration wants
+no-reflow expand, harvest v6's spacer-plus-absolute pattern; the v7
+state machine doesn't preclude it.
 
 ---
 
