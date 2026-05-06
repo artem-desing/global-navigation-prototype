@@ -10,10 +10,14 @@ import { Kbd } from '@wallarm-org/design-system/Kbd';
 import { Search, ChevronRight } from '@wallarm-org/design-system/icons';
 import { resolveIcon } from '@/nav/manifest/icons';
 import { useVariant } from '@/nav/variant-context';
+import { useRecents } from '@/nav/recents/store';
 import {
   buildSearchIndex,
   filterAndRank,
-  getProductRoots,
+  getActions,
+  recentToSearchItem,
+  type ActionItem,
+  type PaletteItem,
   type SearchItem,
 } from './search-index';
 
@@ -22,7 +26,9 @@ const DIALOG_HEIGHT = 520;
 
 interface Section {
   title?: string;
-  items: SearchItem[];
+  items: PaletteItem[];
+  /** Shown when items is empty — keeps the section header visible. */
+  emptyLabel?: string;
 }
 
 export interface GlobalSearchProps {
@@ -54,15 +60,29 @@ export function GlobalSearch({
   const listRef = useRef<HTMLDivElement>(null);
 
   const index = useMemo(() => buildSearchIndex(variantSlug), [variantSlug]);
-  const productRoots = useMemo(() => getProductRoots(index), [index]);
+  const actions = useMemo(() => getActions(), []);
+  const recents = useRecents(variantSlug);
+  const recentItems = useMemo(() => recents.map(recentToSearchItem), [recents]);
 
   const sections: Section[] = useMemo(() => {
     const trimmed = query.trim();
     if (trimmed === '') {
-      return [{ title: 'Suggested', items: productRoots }];
+      return [
+        { title: 'Actions', items: actions },
+        {
+          title: 'Recent',
+          items: recentItems,
+          emptyLabel: 'Nothing recent yet.',
+        },
+      ];
     }
-    return [{ items: filterAndRank(index, trimmed).slice(0, MAX_RESULTS) }];
-  }, [query, index, productRoots]);
+    return [
+      {
+        title: 'Go to',
+        items: filterAndRank(index, trimmed).slice(0, MAX_RESULTS),
+      },
+    ];
+  }, [query, index, recentItems, actions]);
 
   const flatItems = useMemo(() => sections.flatMap((s) => s.items), [sections]);
 
@@ -97,9 +117,15 @@ export function GlobalSearch({
     el?.scrollIntoView({ block: 'nearest' });
   }, [highlight]);
 
-  const navigate = (href: string) => {
+  const selectItem = (item: PaletteItem) => {
     setOpen(false);
-    router.push(href);
+    if (item.kind === 'action') {
+      // Let the search dialog's close commit before the action runs — avoids
+      // focus-trap collisions when the action opens another Dialog.
+      requestAnimationFrame(() => item.onSelect());
+    } else {
+      router.push(item.href);
+    }
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -113,7 +139,7 @@ export function GlobalSearch({
       const item = flatItems[highlight];
       if (item) {
         e.preventDefault();
-        navigate(item.href);
+        selectItem(item);
       }
     }
   };
@@ -206,19 +232,23 @@ export function GlobalSearch({
                     key={section.title ?? `unnamed-${sIdx}`}
                     title={section.title}
                   >
-                    {section.items.map((item) => {
-                      const idx = runningIndex++;
-                      return (
-                        <ResultRow
-                          key={item.id}
-                          item={item}
-                          active={idx === highlight}
-                          onMouseEnter={() => setHighlight(idx)}
-                          onClick={() => navigate(item.href)}
-                          index={idx}
-                        />
-                      );
-                    })}
+                    {section.items.length === 0 && section.emptyLabel ? (
+                      <SectionEmptyRow label={section.emptyLabel} />
+                    ) : (
+                      section.items.map((item) => {
+                        const idx = runningIndex++;
+                        return (
+                          <ResultRow
+                            key={item.id}
+                            item={item}
+                            active={idx === highlight}
+                            onMouseEnter={() => setHighlight(idx)}
+                            onClick={() => selectItem(item)}
+                            index={idx}
+                          />
+                        );
+                      })
+                    )}
                   </SectionBlock>
                 ))
               )}
@@ -264,7 +294,7 @@ function SectionBlock({
 }
 
 interface ResultRowProps {
-  item: SearchItem;
+  item: PaletteItem;
   active: boolean;
   onMouseEnter: () => void;
   onClick: () => void;
@@ -272,11 +302,6 @@ interface ResultRowProps {
 }
 
 function ResultRow({ item, active, onMouseEnter, onClick, index }: ResultRowProps) {
-  const ProductIcon = resolveIcon(item.productIcon);
-  const FeatureIcon = resolveIcon(item.featureIcon);
-  const Icon = FeatureIcon ?? ProductIcon;
-  const isProductRoot = item.breadcrumb.length === 1;
-
   return (
     <button
       type="button"
@@ -292,6 +317,30 @@ function ResultRow({ item, active, onMouseEnter, onClick, index }: ResultRowProp
         color: active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
       }}
     >
+      {item.kind === 'action' ? (
+        <ActionRowBody item={item} />
+      ) : (
+        <NavRowBody item={item} />
+      )}
+      {active && item.kind === 'nav' ? (
+        <ChevronRight
+          size="xs"
+          aria-hidden
+          style={{ color: 'var(--color-icon-secondary)' }}
+        />
+      ) : null}
+    </button>
+  );
+}
+
+function NavRowBody({ item }: { item: SearchItem }) {
+  const ProductIcon = resolveIcon(item.productIcon);
+  const FeatureIcon = resolveIcon(item.featureIcon);
+  const Icon = FeatureIcon ?? ProductIcon;
+  const isProductRoot = item.breadcrumb.length === 1;
+
+  return (
+    <>
       {Icon ? <Icon size="sm" aria-hidden /> : null}
       <div className="flex flex-1 min-w-0 flex-col gap-2">
         <Text size="sm" color="inherit" weight="medium">
@@ -305,14 +354,24 @@ function ResultRow({ item, active, onMouseEnter, onClick, index }: ResultRowProp
           </Text>
         )}
       </div>
-      {active ? (
-        <ChevronRight
-          size="xs"
-          aria-hidden
-          style={{ color: 'var(--color-icon-secondary)' }}
-        />
-      ) : null}
-    </button>
+    </>
+  );
+}
+
+function ActionRowBody({ item }: { item: ActionItem }) {
+  const Icon = resolveIcon(item.icon);
+  return (
+    <>
+      {Icon ? <Icon size="sm" aria-hidden /> : null}
+      <div className="flex flex-1 min-w-0 flex-col gap-2">
+        <Text size="sm" color="inherit" weight="medium">
+          {item.label}
+        </Text>
+        <Text size="xs" color="secondary">
+          {item.description}
+        </Text>
+      </div>
+    </>
   );
 }
 
@@ -342,6 +401,16 @@ function EmptyState({ message }: { message: string }) {
     <div className="flex h-full items-center justify-center px-16 py-24 text-center">
       <Text size="sm" color="secondary">
         {message}
+      </Text>
+    </div>
+  );
+}
+
+function SectionEmptyRow({ label }: { label: string }) {
+  return (
+    <div className="px-20 py-8">
+      <Text size="sm" color="secondary">
+        {label}
       </Text>
     </div>
   );

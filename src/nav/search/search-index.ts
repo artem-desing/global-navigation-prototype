@@ -5,8 +5,11 @@ import type {
   SidebarNode,
 } from '@/nav/manifest/types';
 import type { IconKey } from '@/nav/manifest/icons';
+import { NAV_EVENTS, dispatchNavEvent } from '@/nav/events';
+import type { RecentEntry } from '@/nav/recents/store';
 
 export interface SearchItem {
+  kind: 'nav';
   id: string;
   label: string;
   productLabel: string;
@@ -19,9 +22,63 @@ export interface SearchItem {
   keywords: string;
 }
 
+export interface ActionItem {
+  kind: 'action';
+  id: string;
+  label: string;
+  description: string;
+  icon: IconKey;
+  onSelect: () => void;
+}
+
+export type PaletteItem = SearchItem | ActionItem;
+
+/** Static action list — logic is stubbed; wire later. */
+export function getActions(): ActionItem[] {
+  return [
+    {
+      kind: 'action',
+      id: 'action:create',
+      label: 'Create',
+      description: 'Action',
+      icon: 'plus',
+      onSelect: () => console.log('[GlobalSearch] action: create'),
+    },
+    {
+      kind: 'action',
+      id: 'action:switch-tenant',
+      label: 'Switch tenant',
+      description: 'Action',
+      icon: 'arrow-right-left',
+      onSelect: () => dispatchNavEvent(NAV_EVENTS.OpenTenantDialog),
+    },
+  ];
+}
+
 /** Top-level products + utilities — used as the empty-state "Suggested" list. */
 export function getProductRoots(items: SearchItem[]): SearchItem[] {
   return items.filter((item) => item.breadcrumb.length === 1);
+}
+
+/**
+ * Adapt a stored RecentEntry to a palette nav item. Breadcrumb is
+ * product-first (consistent with manifest-derived items) so the row's
+ * subtitle matches the "Go to" results visually.
+ */
+export function recentToSearchItem(entry: RecentEntry): SearchItem {
+  const breadcrumb = entry.containerLabel
+    ? [entry.productLabel, entry.containerLabel, entry.pageLabel]
+    : [entry.productLabel, entry.pageLabel];
+  return {
+    kind: 'nav',
+    id: `recent:${entry.path}`,
+    label: entry.pageLabel,
+    productLabel: entry.productLabel,
+    productIcon: entry.productIcon ?? 'circle',
+    breadcrumb,
+    href: entry.path,
+    keywords: breadcrumb.join(' ').toLowerCase(),
+  };
 }
 
 /**
@@ -52,6 +109,7 @@ function buildProductItem(
   prefix: string,
 ): SearchItem {
   return {
+    kind: 'nav',
     id: p.id,
     label: p.label,
     productLabel: p.label,
@@ -78,6 +136,7 @@ function walkSidebar(
     const path = [...pathSoFar, node.id];
     const breadcrumb = [...breadcrumbSoFar, node.label];
     out.push({
+      kind: 'nav',
       id: path.join('/'),
       label: node.label,
       productLabel: product.label,

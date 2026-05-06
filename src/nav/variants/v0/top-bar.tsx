@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Globe, ChevronDown, Activity } from '@wallarm-org/design-system/icons';
 import { Text } from '@wallarm-org/design-system/Text';
@@ -11,6 +11,7 @@ import { DialogTitle } from '@wallarm-org/design-system/Dialog';
 import { DialogBody } from '@wallarm-org/design-system/Dialog';
 import { GlobalSearch } from '@/nav/search/global-search';
 import { Sparkles } from '@/nav/manifest/custom-icons';
+import { NAV_EVENTS, onNavEvent } from '@/nav/events';
 import { WallarmWordmark } from './wordmark';
 import { Breadcrumb } from './breadcrumb';
 
@@ -21,6 +22,11 @@ export interface TopBarProps {
 
 export function TopBar({ aiOpen, onToggleAI }: TopBarProps) {
   const [tenantDialogOpen, setTenantDialogOpen] = useState(false);
+
+  useEffect(
+    () => onNavEvent(NAV_EVENTS.OpenTenantDialog, () => setTenantDialogOpen(true)),
+    [],
+  );
 
   return (
     <header

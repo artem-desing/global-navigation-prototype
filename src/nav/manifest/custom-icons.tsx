@@ -124,3 +124,23 @@ export function PanelLeftDashed({ size, className, ...rest }: IconProps) {
   );
 }
 PanelLeftDashed.displayName = 'PanelLeftDashedIcon';
+
+export function ArrowRightLeft({ size, className, ...rest }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+      focusable={false}
+      className={[sizeClass(size), className].filter(Boolean).join(' ')}
+      {...STROKE_PROPS}
+      {...rest}
+    >
+      <path d="m16 3 4 4-4 4" />
+      <path d="M20 7H4" />
+      <path d="m8 21-4-4 4-4" />
+      <path d="M4 17h16" />
+    </svg>
+  );
+}
+ArrowRightLeft.displayName = 'ArrowRightLeftIcon';
