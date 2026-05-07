@@ -12,7 +12,7 @@ How statuses work: **To do** (scoped, not started), **In progress** (active bran
 
 ### A1. Audit & compare v0 vs v6, write verdict
 
-**Status:** To do
+**Status:** Shipped (2026-05-05). See `docs/proposals/v0-vs-v6/00-synthesis.md`. Verdict: v6 is a superset of v0; the synthesis recommended folding into a single variant with v0 chrome + a single ⌘B wide-labels toggle, which became v7. v8 (the canonical prototype) is the route-driven evolution of v7.
 
 **What:** Compare the two main shipped variants and produce a written summary with a recommended next move. v0 = manifest-driven full-rail with hover-preview. v6 = user-controlled rail with three modes (expanded / collapsed / hover) + leader-key shortcuts.
 
@@ -171,6 +171,12 @@ How statuses work: **To do** (scoped, not started), **In progress** (active bran
 - Empty-state pattern consistent across products
 
 ---
+
+## Delegated to PMs (2026-05-07)
+
+The Settings cluster is now delegated to product managers. They contribute via branches off `main`, editing `src/nav/manifest/settings.manifest.ts` + adding/removing pages under `src/nav/shell/feature-pages/settings/`. v8 is the canonical prototype — every PM contribution must render correctly there. Ground rules and the 3-step recipe live in `CONTRIBUTING.md`.
+
+Items that PMs will likely shape: subscription / billing UX, audit log filters, integrations catalog, customer admin-zone surfaces, experiments rollout pattern. None of these require core-nav decisions — they ride on the existing manifest model.
 
 ## Open candidates — for Artem to accept or reject
 
