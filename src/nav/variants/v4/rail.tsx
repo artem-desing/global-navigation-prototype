@@ -26,7 +26,7 @@ import {
 } from '@wallarm-org/design-system/DropdownMenu';
 import {
   getProductManifests,
-  getPlatformUtilityManifests,
+  getRailUtilityManifests,
 } from '@/nav/manifest/registry';
 import { resolveIcon, type IconKey } from '@/nav/manifest/icons';
 import type {
@@ -87,7 +87,7 @@ function CollapsedRail({ onToggle }: RailModeProps) {
   const pathname = usePathname();
   const { slug: variantSlug } = useVariant();
   const products = getProductManifests();
-  const utilities = getPlatformUtilityManifests();
+  const utilities = getRailUtilityManifests();
 
   const segments = pathname.split('/').filter(Boolean);
   const productSlot = segments[2];

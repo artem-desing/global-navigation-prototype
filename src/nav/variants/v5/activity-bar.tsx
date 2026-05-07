@@ -8,6 +8,7 @@ import {
   History as HistoryIcon,
   Search as SearchIcon,
 } from '@wallarm-org/design-system/icons';
+import { Bell as BellIcon } from '@/nav/manifest/custom-icons';
 import { Text } from '@wallarm-org/design-system/Text';
 import {
   DropdownMenu,
@@ -20,7 +21,8 @@ import {
 } from '@wallarm-org/design-system/DropdownMenu';
 import {
   getProductManifests,
-  getPlatformUtilityManifests,
+  getRailUtilityManifests,
+  getTopBarUtilityManifests,
 } from '@/nav/manifest/registry';
 import { resolveIcon } from '@/nav/manifest/icons';
 import type { PlatformUtilityManifest } from '@/nav/manifest/types';
@@ -43,7 +45,8 @@ export function ActivityBar({ workbench, onOpenSearch }: ActivityBarProps) {
   const router = useRouter();
   const { slug } = useVariant();
   const products = getProductManifests();
-  const utilities = getPlatformUtilityManifests();
+  const utilities = getRailUtilityManifests();
+  const topBarUtilities = getTopBarUtilityManifests();
 
   const segments = pathname.split('/').filter(Boolean);
   const activeId = segments[2] ?? 'home';
@@ -138,6 +141,63 @@ export function ActivityBar({ workbench, onOpenSearch }: ActivityBarProps) {
           backgroundColor: 'var(--color-border-primary-light)',
         }}
       />
+
+      {topBarUtilities.map((u) => {
+        const Icon = resolveIcon(u.icon);
+        const tooltip = u.id === 'docs' ? 'Quick help' : u.label;
+        return (
+          <ActivityTooltip key={u.id} label={tooltip}>
+            <a
+              href={u.externalUrl ?? '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${u.label} (opens in new tab)`}
+              className="relative flex shrink-0 items-center justify-center rounded-md transition-colors"
+              style={{
+                width: ITEM_SIZE,
+                height: ITEM_SIZE,
+                color: 'var(--color-text-secondary)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-bg-light-primary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '';
+              }}
+            >
+              {Icon ? <Icon size="md" aria-hidden /> : null}
+            </a>
+          </ActivityTooltip>
+        );
+      })}
+
+      {/*
+       * "What's new" — placeholder button. No logic wired; here to anchor
+       * the shape of the chrome until announcements get a real destination.
+       */}
+      <ActivityTooltip label="What's new">
+        <button
+          type="button"
+          aria-label="What's new"
+          onClick={() => {
+            /* noop — placeholder until announcements ship */
+          }}
+          className="relative flex shrink-0 items-center justify-center rounded-md transition-colors"
+          style={{
+            width: ITEM_SIZE,
+            height: ITEM_SIZE,
+            color: 'var(--color-text-secondary)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--color-bg-light-primary)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '';
+          }}
+        >
+          <BellIcon size="md" />
+        </button>
+      </ActivityTooltip>
 
       {utilities.map((u) => (
         <UtilityActivityItem

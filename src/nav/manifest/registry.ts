@@ -34,6 +34,16 @@ export function getPlatformUtilityManifests(): PlatformUtilityManifest[] {
   return manifests.filter((m): m is PlatformUtilityManifest => m.type === 'platform-utility');
 }
 
+/** Platform utilities that render in the rail (default). Excludes top-bar utilities. */
+export function getRailUtilityManifests(): PlatformUtilityManifest[] {
+  return getPlatformUtilityManifests().filter((m) => (m.placement ?? 'rail') === 'rail');
+}
+
+/** Platform utilities that render as icon buttons in the top bar (e.g. Docs / Quick help). */
+export function getTopBarUtilityManifests(): PlatformUtilityManifest[] {
+  return getPlatformUtilityManifests().filter((m) => m.placement === 'top-bar');
+}
+
 /**
  * Walk a sidebar tree and return a flat list of all FeatureNodes.
  * Useful for resolving a Feature by id from a URL segment.

@@ -54,6 +54,21 @@ export interface ResolveOptions {
   variantPrefix?: string;
 }
 
+/**
+ * True iff the current page renders second-level navigation — i.e. a product
+ * (or settings) manifest is in scope and the SecondColumn paints its tree.
+ *
+ * v8 reads this to drive its rail width: surfaces *without* a second level
+ * (variant home, unknown routes, future no-sidebar pages) keep the rail
+ * expanded so labels stay visible; surfaces *with* a second level collapse
+ * the rail to icons because the work of naming the destination has moved
+ * into the SecondColumn. Other variants can adopt the same rule if/when they
+ * grow no-sidebar surfaces.
+ */
+export function hasSecondLevelNav(ctx: ShellContext): boolean {
+  return ctx.mode === 'product';
+}
+
 export function resolveShellContext(
   pathname: string,
   options: ResolveOptions = {},

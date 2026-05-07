@@ -12,4 +12,5 @@ export const docsManifest: PlatformUtilityManifest = {
   externalUrl: 'https://docs.wallarm.com',
   defaultLandingId: '',
   sidebar: [],
+  placement: 'top-bar',
 };

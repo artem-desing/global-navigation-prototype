@@ -12,6 +12,7 @@ to the picker (deliberate hidden door for the prototype phase).
 
 | Slug | Label | Model | Files |
 |---|---|---|---|
+| v8 | Auto-collapsing rail | v0 logic, but the rail's width is a function of the route. Surfaces with their own second-level nav (any product, settings, drilled scope) collapse the rail to 64px icons + tooltips; surfaces without (variant home, future no-sidebar pages) expand it to 192px with horizontal icon+label rows. No toggle, no mode menu. | `src/nav/variants/v8/` |
 | v0 | Always-open sidebar | Wide left sidebar + persistent second column with drill, ⌘K palette, Recents rail, AI assistant push panel | `src/nav/variants/v0/` |
 | v2 | Hover to expand | 64px icon rail collapses by default; hover or pin to reveal labels | `src/nav/variants/v2/` |
 | v3 | Icons only, with tooltips | Permanent 64px icon strip; labels appear as tooltips on hover (no expanding column) | `src/nav/variants/v3/` |
@@ -188,6 +189,71 @@ significantly more complex). Accept it for the prototype.
 - "Open elsewhere" indicator dot on a leaf already open in another tab.
 - Tab strip overflow menu (currently scrolls horizontally).
 - Real AI panel internals (placeholder content for now).
+
+---
+
+## v8 — Auto-collapsing rail ("Final")
+
+**Slug:** `v8`. **Origin:** the closing variant of the prototype phase. Same
+logic as v0/v7; the only thing v8 changes is *when the rail is wide and when
+it is narrow*, and it removes user agency over that decision.
+
+The rule lives in `src/nav/url.ts` as `hasSecondLevelNav(ctx)`:
+
+- `ctx.mode !== 'product'` → no second-level nav painted → rail **expanded**
+  at 192px, horizontal icon+label rows. Today this is just the variant home
+  (`/v/v8/`); the rule generalises to any future surface that doesn't paint
+  its own sub-nav.
+- `ctx.mode === 'product'` → SecondColumn paints the product (or settings, or
+  drilled scope) tree → rail **collapsed** at 64px, icons only, hover
+  tooltips, leader-key shortcuts.
+
+The first-time user lands on home, sees every product spelled out, clicks
+one, and the rail steps out of the way as the product's own tree takes over.
+Returning to home re-expands the rail. Every transition is the same 180ms
+width animation (gated on `prefers-reduced-motion`).
+
+**Surfaces** (in `src/nav/variants/v8/`):
+
+- `shell.tsx` — copies v0's shell verbatim, swapping in v8's rail. Reuses
+  v0's `TopBar` (with inline breadcrumb), `SecondColumn`, drift-back, plus
+  the shared `AIAssistantPanel`, `FlagPanel`, `RecentsTracker`.
+- `rail.tsx` — derives `expanded` from `hasSecondLevelNav(resolveShellContext(...))`.
+  No localStorage, no ⌘B handler, no toggle button, no mode menu, no
+  hover-overlay, no HoverPreview. Same leader-key wiring as v0/v7
+  (`G E/A/I/T/H/R/S`, capture-phase). Same `RailTooltip` flat-tooltip
+  pattern as v3 to dodge the WADS Tooltip + DropdownMenu Ark gotcha.
+  Recent and User dropdowns open on click. ArrowUp/Down rove across rail
+  items.
+
+**Differences from v7:**
+
+- v7's narrow state is 96px stacked icon+label; v8's is 64px icon-only with
+  tooltips. v8 commits to "you only see icons in narrow mode" — narrow is
+  for users who already know the surface.
+- v7 has user agency (⌘B toggle, persisted). v8 has none — the rail is
+  whatever the route says it should be.
+- v7 keeps the rail narrow as the default everywhere. v8 expands at home so
+  first-time users learn the surface, then collapses everywhere there's a
+  second-level nav to make room for it.
+
+**What v8 deliberately does NOT do:**
+
+- No three-mode menu (v6) or toggle (v7) — pure auto.
+- No hover-overlay rail (v6 hover mode) — collapsed stays collapsed; the
+  workspace reflows on transitions, but transitions only happen on commit
+  navigations.
+- No HoverPreview cross-product peek — same call as v7.
+- No localStorage. The rail has no per-user state.
+
+**Trade-off.** When you click into a product, the rail width changes — the
+workspace reflows by ~128px on every product entry. The synthesis verdict
+in `docs/proposals/v0-vs-v6/VERDICT.md` accepted this trade for v7 as a
+user-driven action; v8 makes it route-driven, which trades two reflows
+(home → product, product → home) for the upside that the rail width is
+always honest about whether the page has its own nav. If a future iteration
+wants no-reflow expand, harvest v6's spacer-plus-absolute pattern; v8's
+predicate doesn't preclude it.
 
 ---
 

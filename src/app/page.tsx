@@ -12,6 +12,8 @@ import { variantHomePath } from '@/nav/variant-context';
 export default function PickerPage() {
   const variants = getAllVariants();
   const preferred = variants.filter((v) => v.preferred);
+  const finalVariant = preferred.find((v) => v.tag === 'Final');
+  const restPreferred = preferred.filter((v) => v.tag !== 'Final');
   const others = variants.filter((v) => !v.preferred);
 
   return (
@@ -36,11 +38,28 @@ export default function PickerPage() {
           </Text>
         </header>
 
-        <ul className="grid grid-cols-2 gap-8">
-          {preferred.map((v) => (
-            <VariantCard key={v.slug} variant={v} />
-          ))}
-        </ul>
+        {finalVariant ? (
+          <ul className="grid grid-cols-1 gap-8">
+            <VariantCard variant={finalVariant} />
+          </ul>
+        ) : null}
+
+        {finalVariant && restPreferred.length > 0 ? (
+          <div
+            role="separator"
+            aria-orientation="horizontal"
+            className="h-[1px] w-full"
+            style={{ backgroundColor: 'var(--color-border-primary-light)' }}
+          />
+        ) : null}
+
+        {restPreferred.length > 0 ? (
+          <ul className="grid grid-cols-2 gap-8">
+            {restPreferred.map((v) => (
+              <VariantCard key={v.slug} variant={v} />
+            ))}
+          </ul>
+        ) : null}
 
         {others.length > 0 ? (
           <>
@@ -76,9 +95,9 @@ export default function PickerPage() {
   );
 }
 
-function VariantCard({ variant }: { variant: Variant }) {
+function VariantCard({ variant, className }: { variant: Variant; className?: string }) {
   return (
-    <li className="h-full">
+    <li className={['h-full', className].filter(Boolean).join(' ')}>
       <Link href={variantHomePath(variant.slug)} className="block h-full">
         <Card className="h-full transition-colors hover:bg-[var(--color-bg-light-primary)]">
           <div className="flex h-full items-center gap-12 px-16">
@@ -91,7 +110,10 @@ function VariantCard({ variant }: { variant: Variant }) {
                   /v/{variant.slug}/
                 </Text>
                 {variant.tag ? (
-                  <Badge type="secondary" color="w-orange">
+                  <Badge
+                    type="secondary"
+                    color={variant.tag === 'Final' ? 'green' : 'w-orange'}
+                  >
                     {variant.tag}
                   </Badge>
                 ) : null}

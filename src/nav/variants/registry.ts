@@ -6,6 +6,7 @@ import { Shell as V4Shell } from './v4/shell';
 import { Shell as V5Shell } from './v5/shell';
 import { Shell as V6Shell } from './v6/shell';
 import { Shell as V7Shell } from './v7/shell';
+import { Shell as V8Shell } from './v8/shell';
 
 export interface Variant {
   slug: string;
@@ -27,6 +28,15 @@ export interface Variant {
 }
 
 const variants: Variant[] = [
+  {
+    slug: 'v8',
+    label: 'Auto-collapsing rail',
+    blurb:
+      "Expanded on the home page so first-timers can read product names; collapsed inside any product so its tree can lead. One rule, no toggle.",
+    Shell: V8Shell,
+    preferred: true,
+    tag: 'Final',
+  },
   {
     slug: 'v6',
     label: 'User-controlled rail',

@@ -34,6 +34,13 @@ export interface PlatformUtilityManifest {
    * with Profile/Theme/Sign out) where a flyout would be over-scaled.
    */
   previewMode?: 'dropdown';
+  /**
+   * Where the utility surfaces in the chrome. Default is `'rail'` (bottom of
+   * the product rail). `'top-bar'` removes it from the rail and renders it as
+   * an icon button in the global top bar — useful for utilities that read as
+   * cross-cutting hooks rather than rail items (Docs / quick help).
+   */
+  placement?: 'rail' | 'top-bar';
 }
 
 export type SidebarNode = FeatureNode | GroupNode | CategoryNode;

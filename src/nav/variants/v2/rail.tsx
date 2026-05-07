@@ -28,7 +28,7 @@ import {
 } from '@wallarm-org/design-system/DropdownMenu';
 import {
   getProductManifests,
-  getPlatformUtilityManifests,
+  getRailUtilityManifests,
 } from '@/nav/manifest/registry';
 import { resolveIcon } from '@/nav/manifest/icons';
 import type { ProductManifest, PlatformUtilityManifest } from '@/nav/manifest/types';
@@ -97,7 +97,7 @@ export function Rail() {
   const pathname = usePathname();
   const { slug: variantSlug } = useVariant();
   const products = getProductManifests();
-  const utilities = getPlatformUtilityManifests();
+  const utilities = getRailUtilityManifests();
   const prefersReducedMotion = usePrefersReducedMotion();
 
   const segments = pathname.split('/').filter(Boolean);
