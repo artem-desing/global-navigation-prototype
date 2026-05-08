@@ -561,6 +561,17 @@ function UtilityDropdownRailItem({
                 value={feature.id}
                 onSelect={() => {
                   setOpen(false);
+                  // User-menu items don't navigate to a /user/<feature>
+                  // placeholder — that would surface a duplicate top-level
+                  // "user" sidebar for chrome that already lives in the
+                  // dropdown. Profile points into Settings; Theme and
+                  // Sign out are stubs that just close the menu.
+                  if (isAvatar) {
+                    if (feature.id === 'profile') {
+                      router.push(withVariantPrefix(variantSlug, '/settings/profile'));
+                    }
+                    return;
+                  }
                   router.push(withVariantPrefix(variantSlug, `/${utility.id}/${feature.id}`));
                 }}
               >
